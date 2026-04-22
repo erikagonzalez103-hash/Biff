@@ -3,321 +3,583 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Biff — Eridion Field Ops</title>
+<title>Jericho — Dion's Operating System</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  :root {
-    --bg: #f5f5f3;
-    --surface: #ffffff;
-    --border: rgba(0,0,0,0.1);
-    --border-strong: rgba(0,0,0,0.2);
-    --text: #1a1a1a;
-    --text-muted: #666;
-    --text-hint: #999;
-    --blue: #185FA5;
-    --blue-bg: #E6F1FB;
-    --blue-text: #0C447C;
-    --green: #3B6D11;
-    --green-bg: #EAF3DE;
-    --green-text: #27500A;
-    --amber: #854F0B;
-    --amber-bg: #FAEEDA;
-    --amber-text: #633806;
-    --red: #A32D2D;
-    --red-bg: #FCEBEB;
-    --red-text: #791F1F;
-    --gray-bg: #F1EFE8;
-    --gray-text: #444441;
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 15px;
-    line-height: 1.5;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #0d1117;
+  --sidebar: #161b22;
+  --surface: #1c2128;
+  --surface2: #21262d;
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --text-hint: #484f58;
+  --green: #3fb950;
+  --green-dim: #1a3d2b;
+  --green-text: #3fb950;
+  --blue: #58a6ff;
+  --blue-dim: #1a2f4a;
+  --amber: #d29922;
+  --amber-dim: #2d2208;
+  --red: #f85149;
+  --red-dim: #3d1a1a;
+  --purple: #bc8cff;
+  --purple-dim: #2d1f4a;
+  --radius: 8px;
+  --sidebar-w: 220px;
+}
 
-  /* Header */
-  .header {
-    background: var(--surface);
-    border-bottom: 0.5px solid var(--border);
-    padding: 16px 20px 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-top { display: flex; align-items: center; justify-content: space-between; }
-  .header-name { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
-  .header-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-  .refresh-btn {
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 0.5px solid var(--border-strong);
-    background: transparent; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; color: var(--text-muted);
-  }
-  .refresh-btn:active { background: var(--bg); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
-  /* Tab bar */
-  .tabs {
-    display: flex; gap: 0;
-    margin-top: 12px;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .tab {
-    flex: 1; padding: 8px 4px; text-align: center;
-    font-size: 13px; font-weight: 500; color: var(--text-muted);
-    border: none; background: transparent; cursor: pointer;
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
-  }
-  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
 
-  /* Main content */
-  .content { padding: 16px; max-width: 600px; margin: 0 auto; }
+.sidebar-logo {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-  /* Section */
-  .section-label {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
-    text-transform: uppercase; color: var(--text-hint);
-    margin: 20px 0 8px;
-  }
-  .section-label:first-child { margin-top: 0; }
+.logo-mark {
+  width: 32px; height: 32px;
+  background: var(--green);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 16px; color: #0d1117;
+  flex-shrink: 0;
+  letter-spacing: -1px;
+}
 
-  /* Cards */
-  .card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    border: 0.5px solid var(--border);
-    margin-bottom: 10px;
-    overflow: hidden;
-  }
-  .card-header {
-    padding: 14px 16px 10px;
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
-  }
-  .card-title { font-size: 15px; font-weight: 500; line-height: 1.3; flex: 1; }
-  .card-sub { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
-  .card-body { padding: 0 16px 14px; }
+.logo-text { line-height: 1.2; }
+.logo-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
+.logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
 
-  /* Status badge */
-  .badge {
-    font-size: 11px; font-weight: 500; padding: 3px 8px;
-    border-radius: 20px; white-space: nowrap; flex-shrink: 0;
-  }
-  .badge-blue { background: var(--blue-bg); color: var(--blue-text); }
-  .badge-green { background: var(--green-bg); color: var(--green-text); }
-  .badge-amber { background: var(--amber-bg); color: var(--amber-text); }
-  .badge-red { background: var(--red-bg); color: var(--red-text); }
-  .badge-gray { background: var(--gray-bg); color: var(--gray-text); }
+.sidebar-date {
+  padding: 10px 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
 
-  /* Status color map */
-  .status-Quoting { background: var(--gray-bg); color: var(--gray-text); }
-  .status-Ready-for-Measure { background: var(--blue-bg); color: var(--blue-text); }
-  .status-Measured { background: var(--blue-bg); color: var(--blue-text); }
-  .status-Awaiting-PO { background: var(--amber-bg); color: var(--amber-text); }
-  .status-In-Production { background: var(--amber-bg); color: var(--amber-text); }
-  .status-Ready-for-Install { background: var(--amber-bg); color: var(--amber-text); }
-  .status-Currently-Installing { background: var(--amber-bg); color: var(--amber-text); }
-  .status-Installed-Complete { background: var(--green-bg); color: var(--green-text); }
-  .status-Invoice-sent { background: var(--green-bg); color: var(--green-text); }
-  .status-On-Hold { background: var(--red-bg); color: var(--red-text); }
-  .status-Warranty { background: var(--red-bg); color: var(--red-text); }
+.msg-badge-sidebar {
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  display: none;
+  margin-left: auto;
+}
+.msg-badge-sidebar.show { display: inline-block; }
 
-  /* Stale alert */
-  .stale-bar {
-    background: var(--amber-bg);
-    border-top: 0.5px solid rgba(186,117,23,0.2);
-    padding: 8px 16px;
-    font-size: 12px; color: var(--amber-text);
-    display: flex; align-items: center; gap: 6px;
-  }
-  .stale-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
+.nav-section {
+  padding: 16px 0 4px;
+}
 
-  /* Action buttons */
-  .action-row {
-    display: flex; gap: 8px; padding: 0 16px 14px; flex-wrap: wrap;
-  }
-  .action-btn {
-    flex: 1; min-width: 100px;
-    padding: 10px 12px; border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border-strong);
-    background: transparent; color: var(--text);
-    font-size: 13px; font-weight: 500; cursor: pointer;
-    text-align: center;
-  }
-  .action-btn:active { background: var(--bg); }
-  .action-btn.primary {
-    background: var(--blue); color: white; border-color: var(--blue);
-  }
-  .action-btn.primary:active { opacity: 0.85; }
+.nav-label {
+  padding: 0 16px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-hint);
+}
 
-  /* Status picker */
-  .status-picker {
-    padding: 12px 16px 14px;
-    border-top: 0.5px solid var(--border);
-    display: none;
-  }
-  .status-picker.open { display: block; }
-  .status-picker-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-  .status-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-  .status-option {
-    padding: 9px 10px; border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border);
-    background: var(--surface); font-size: 12px;
-    cursor: pointer; text-align: center; font-weight: 500;
-  }
-  .status-option:active { opacity: 0.7; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  border-left: 3px solid transparent;
+  transition: color 0.15s, background 0.15s;
+  position: relative;
+}
 
-  /* Note panel */
-  .note-panel {
-    padding: 12px 16px 14px;
-    border-top: 0.5px solid var(--border);
-    display: none;
-  }
-  .note-panel.open { display: block; }
-  .note-panel textarea {
-    width: 100%; border: 0.5px solid var(--border-strong);
-    border-radius: var(--radius-sm); padding: 10px 12px;
-    font-size: 14px; font-family: inherit; resize: none;
-    background: var(--bg); color: var(--text);
-    min-height: 80px;
-  }
-  .note-panel textarea:focus { outline: none; border-color: var(--blue); }
-  .photo-required {
-    font-size: 12px; color: var(--amber-text);
-    background: var(--amber-bg); padding: 8px 10px;
-    border-radius: var(--radius-sm); margin-bottom: 8px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .photo-btn {
-    width: 100%; padding: 10px; margin-top: 8px;
-    border-radius: var(--radius-sm); border: 1.5px dashed var(--border-strong);
-    background: transparent; color: var(--text-muted);
-    font-size: 13px; cursor: pointer; text-align: center;
-  }
-  .photo-btn:active { background: var(--bg); }
-  .photo-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .photo-thumb {
-    width: 64px; height: 64px; border-radius: var(--radius-sm);
-    object-fit: cover; border: 0.5px solid var(--border);
-  }
-  .note-submit {
-    width: 100%; margin-top: 8px; padding: 11px;
-    background: var(--blue); color: white; border: none;
-    border-radius: var(--radius-sm); font-size: 14px;
-    font-weight: 500; cursor: pointer;
-  }
-  .note-submit:active { opacity: 0.85; }
-  .note-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-item.active { color: var(--green); border-left-color: var(--green); background: rgba(63,185,80,0.06); }
 
-  /* Sub card */
-  .sub-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
-  .sub-row + .sub-row { border-top: 0.5px solid var(--border); }
-  .sub-avatar {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: var(--blue-bg); color: var(--blue-text);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 600; font-size: 14px; flex-shrink: 0;
-  }
-  .sub-info { flex: 1; min-width: 0; }
-  .sub-name { font-size: 14px; font-weight: 500; }
-  .sub-detail { font-size: 12px; color: var(--text-muted); }
-  .sub-action {
-    padding: 8px 14px; border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border-strong);
-    background: transparent; font-size: 13px; cursor: pointer;
-    color: var(--text);
-  }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); position: absolute; right: 14px; top: 50%; transform: translateY(-50%); display: none; }
+.nav-dot.show { display: block; }
 
-  /* Alert card */
-  .alert-card {
-    background: var(--red-bg); border-color: rgba(163,45,45,0.2);
-  }
-  .alert-card .card-title { color: var(--red-text); }
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-hint);
+}
 
-  /* Empty state */
-  .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; }
+/* ── MAIN ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-  /* Loading */
-  .loading { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-  .spinner {
-    width: 28px; height: 28px; border: 2px solid var(--border);
-    border-top-color: var(--blue); border-radius: 50%;
-    animation: spin 0.8s linear infinite; margin: 0 auto 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.topbar {
+  background: var(--sidebar);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
 
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: #1a1a1a; color: white; padding: 10px 20px;
-    border-radius: 20px; font-size: 14px; font-weight: 500;
-    opacity: 0; transition: opacity 0.2s; pointer-events: none;
-    white-space: nowrap; z-index: 999;
-  }
-  .toast.show { opacity: 1; }
+.topbar-title { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+.topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
 
-  /* Modal */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-    z-index: 200; display: none; align-items: flex-end;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); width: 100%;
-    border-radius: var(--radius) var(--radius) 0 0;
-    padding: 20px; max-height: 80vh; overflow-y: auto;
-  }
-  .modal-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-  .modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
-  .modal-close {
-    width: 100%; padding: 12px; margin-top: 12px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; font-size: 15px; cursor: pointer; color: var(--text-muted);
-  }
+.refresh-btn {
+  width: 34px; height: 34px; border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text-muted);
+  transition: color 0.15s, background 0.15s;
+}
+.refresh-btn:hover { color: var(--text); background: var(--surface2); }
 
-  /* Divider */
-  .divider { height: 0.5px; background: var(--border); margin: 4px 0; }
+.content { padding: 24px; flex: 1; max-width: 900px; }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #111110; --surface: #1c1c1a; --border: rgba(255,255,255,0.1);
-      --border-strong: rgba(255,255,255,0.2); --text: #f0ede8; --text-muted: #999;
-      --text-hint: #666; --blue: #378ADD; --blue-bg: #042C53; --blue-text: #85B7EB;
-      --green-bg: #173404; --green-text: #97C459; --amber-bg: #412402;
-      --amber-text: #EF9F27; --red-bg: #501313; --red-text: #F09595;
-      --gray-bg: #2C2C2A; --gray-text: #B4B2A9;
-    }
-  }
+/* ── SECTION LABELS ── */
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-hint);
+  margin: 24px 0 10px;
+}
+.section-label:first-child { margin-top: 0; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-title { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; line-height: 1.3; }
+.card-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.card-body { padding: 0 16px 16px; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.card-divider { height: 1px; background: var(--border); margin: 0 16px; }
+
+/* ── BRIEF CARD ── */
+.brief-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.brief-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface2);
+}
+.brief-avatar {
+  width: 36px; height: 36px;
+  border-radius: var(--radius);
+  background: var(--green);
+  color: #0d1117;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px;
+  flex-shrink: 0;
+}
+.brief-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.brief-time { font-size: 11px; color: var(--text-muted); }
+.brief-body {
+  padding: 18px 20px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* ── BADGES ── */
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge-green { background: var(--green-dim); color: var(--green-text); border: 1px solid rgba(63,185,80,0.2); }
+.badge-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(88,166,255,0.2); }
+.badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(210,153,34,0.2); }
+.badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,81,73,0.2); }
+.badge-gray { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+.badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(188,140,255,0.2); }
+
+/* ── METRICS GRID ── */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; margin-bottom: 12px; }
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.metric-label { font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-hint); margin-bottom: 6px; }
+.metric-value { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+.metric-value.green { color: var(--green); }
+.metric-value.amber { color: var(--amber); }
+.metric-value.red { color: var(--red); }
+.metric-value.na { font-size: 13px; color: var(--text-hint); font-weight: 400; }
+.metric-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── INPUTS ── */
+.field-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  margin-bottom: 8px;
+  transition: border-color 0.15s;
+}
+.field-input:focus { outline: none; border-color: var(--green); }
+.field-input::placeholder { color: var(--text-hint); }
+textarea.field-input { resize: none; }
+select.field-input { appearance: none; cursor: pointer; }
+
+.submit-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--green);
+  color: #0d1117;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: opacity 0.15s;
+}
+.submit-btn:hover { opacity: 0.9; }
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── ACTION ROW ── */
+.action-row { display: flex; gap: 8px; padding: 0 16px 14px; }
+.action-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.15s, background 0.15s;
+}
+.action-btn:hover { color: var(--text); background: var(--surface2); }
+.action-btn.primary { background: var(--green); color: #0d1117; border-color: var(--green); }
+.action-btn.primary:hover { opacity: 0.9; }
+
+/* ── STALE BAR ── */
+.stale-bar {
+  background: var(--amber-dim);
+  border-top: 1px solid rgba(210,153,34,0.2);
+  padding: 7px 16px;
+  font-size: 11px;
+  color: var(--amber);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stale-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
+
+/* ── NOTE PANEL ── */
+.note-panel { padding: 12px 16px 14px; border-top: 1px solid var(--border); display: none; }
+.note-panel.open { display: block; }
+.photo-req { font-size: 11px; color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(210,153,34,0.2); padding: 7px 10px; border-radius: var(--radius); margin-bottom: 8px; }
+.photo-btn { width: 100%; padding: 9px; margin: 6px 0; border-radius: var(--radius); border: 1px dashed var(--border-strong); background: transparent; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: center; }
+.photo-btn:hover { border-color: var(--green); color: var(--green); }
+.photo-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.photo-thumb { width: 60px; height: 60px; border-radius: var(--radius); object-fit: cover; border: 1px solid var(--border); }
+
+/* ── SCORECARD TABLE ── */
+.scorecard-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.scorecard-row:last-child { border-bottom: none; }
+.scorecard-label { flex: 1; font-size: 12px; color: var(--text-muted); }
+.scorecard-input { width: 130px; padding: 6px 10px; border: 1px solid var(--border-strong); border-radius: var(--radius); font-size: 13px; text-align: right; background: var(--bg); color: var(--text); }
+.scorecard-input:focus { outline: none; border-color: var(--green); }
+
+/* ── SUB ROWS ── */
+.sub-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.sub-row + .sub-row { border-top: 1px solid var(--border); }
+.sub-avatar { width: 38px; height: 38px; border-radius: var(--radius); background: var(--surface2); color: var(--green); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; border: 1px solid var(--border); }
+.sub-info { flex: 1; }
+.sub-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.sub-detail { font-size: 11px; color: var(--text-muted); }
+.sub-btn { padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: transparent; font-size: 12px; cursor: pointer; color: var(--text-muted); font-weight: 600; }
+.sub-btn:hover { color: var(--green); border-color: var(--green); }
+
+/* ── MESSAGES ── */
+.msg-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 10px; overflow: hidden; }
+.msg-card.urgent { border-color: rgba(248,81,73,0.3); background: var(--red-dim); }
+.msg-card.unread { border-left: 3px solid var(--blue); }
+.msg-hd { padding: 12px 16px 8px; display: flex; align-items: flex-start; gap: 10px; }
+.msg-av { width: 34px; height: 34px; border-radius: var(--radius); background: var(--blue-dim); color: var(--blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; border: 1px solid rgba(88,166,255,0.2); }
+.msg-av.urgent { background: var(--red-dim); color: var(--red); border-color: rgba(248,81,73,0.2); }
+.msg-meta { flex: 1; }
+.msg-subject { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.msg-detail { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.msg-body { padding: 0 16px 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.msg-job { padding: 0 16px 10px; }
+.msg-pill { display: inline-block; background: var(--surface2); color: var(--text-muted); padding: 2px 10px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border); }
+
+/* ── ROCK ITEMS ── */
+.rock-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.rock-item:last-child { border-bottom: none; }
+.rock-check { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--border-strong); flex-shrink: 0; margin-top: 1px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; transition: all 0.15s; }
+.rock-check.done { background: var(--green); border-color: var(--green); color: #0d1117; font-weight: 700; }
+.rock-text { font-size: 13px; color: var(--text); line-height: 1.4; }
+.rock-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+/* ── TRAINING ── */
+.training-entry { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.training-entry:last-child { border-bottom: none; }
+.training-icon { width: 34px; height: 34px; border-radius: var(--radius); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.training-info { flex: 1; }
+.training-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.training-detail { font-size: 11px; color: var(--text-muted); }
+
+/* ── INJURY FLAGS ── */
+.injury-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.injury-row:last-child { border-bottom: none; }
+.injury-info { flex: 1; font-size: 13px; color: var(--text); }
+.injury-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+
+/* ── RACE CARD ── */
+.race-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.race-row:last-child { border-bottom: none; }
+.race-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.race-detail { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── COMING SOON ── */
+.coming-soon { text-align: center; padding: 60px 20px; }
+.coming-soon-icon { font-size: 48px; margin-bottom: 16px; }
+.coming-soon-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.coming-soon-sub { font-size: 13px; color: var(--text-muted); line-height: 1.7; max-width: 380px; margin: 0 auto; }
+
+/* ── MODAL ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); width: 100%; max-width: 480px; border-radius: var(--radius) var(--radius) 0 0; padding: 20px; max-height: 80vh; overflow-y: auto; border: 1px solid var(--border); }
+.modal-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.modal-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+.modal-close { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid var(--border-strong); border-radius: var(--radius); background: transparent; font-size: 13px; cursor: pointer; color: var(--text-muted); font-weight: 600; }
+.modal-close:hover { color: var(--text); }
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.status-option { padding: 9px 10px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface2); font-size: 12px; cursor: pointer; text-align: center; font-weight: 600; color: var(--text-muted); }
+.status-option:hover { border-color: var(--green); color: var(--green); }
+
+/* ── STATES ── */
+.loading { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+.spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--surface2); color: var(--text); border: 1px solid var(--border-strong); padding: 10px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; z-index: 999; }
+.toast.show { opacity: 1; }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 200px; }
+  .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .topbar { padding: 12px 16px; }
+  .content { padding: 16px; }
+  .hamburger { display: flex !important; }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+  .overlay.show { display: block; }
+}
+
+@media (min-width: 769px) {
+  .hamburger { display: none !important; }
+  .sidebar { transform: none !important; }
+}
+
+.hamburger {
+  display: none;
+  width: 34px; height: 34px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.hamburger span { display: block; width: 16px; height: 1.5px; background: var(--text-muted); border-radius: 2px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .two-col { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <div>
-      <div class="header-name">Biff</div>
-      <div class="header-sub" id="date-line">Loading...</div>
-    </div>
-    <button class="refresh-btn" onclick="loadAll()" title="Refresh">↻</button>
-  </div>
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('brief')">Brief</button>
-    <button class="tab" onclick="switchTab('jobs')">Jobs</button>
-    <button class="tab" onclick="switchTab('subs')">Subs</button>
-  </div>
-</div>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-<div class="content">
-  <div id="tab-brief"></div>
-  <div id="tab-jobs" style="display:none"></div>
-  <div id="tab-subs" style="display:none"></div>
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">J</div>
+    <div class="logo-text">
+      <div class="logo-name">JERICHO</div>
+      <div class="logo-sub">Operating System</div>
+    </div>
+  </div>
+  <div class="sidebar-date" id="sidebar-date">Loading...</div>
+
+  <nav class="nav-section">
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" onclick="switchTab('brief')">
+      <span class="nav-icon">☀</span> Brief
+    </button>
+    <button class="nav-item" onclick="switchTab('weekly5')">
+      <span class="nav-icon">⚡</span> Weekly 5
+      <span class="nav-dot" id="w5-dot"></span>
+    </button>
+  </nav>
+
+  <nav class="nav-section">
+    <div class="nav-label">Business</div>
+    <button class="nav-item" onclick="switchTab('scoreboard')">
+      <span class="nav-icon">📊</span> Scoreboard
+    </button>
+    <button class="nav-item" onclick="switchTab('jobs')">
+      <span class="nav-icon">🔧</span> Jobs
+    </button>
+    <button class="nav-item" onclick="switchTab('subs')">
+      <span class="nav-icon">👷</span> Subs
+    </button>
+  </nav>
+
+  <nav class="nav-section">
+    <div class="nav-label">Performance</div>
+    <button class="nav-item" onclick="switchTab('training')">
+      <span class="nav-icon">🏊</span> Training
+    </button>
+    <button class="nav-item" onclick="switchTab('nutrition')">
+      <span class="nav-icon">🥗</span> Nutrition
+    </button>
+  </nav>
+
+  <nav class="nav-section">
+    <div class="nav-label">Strategy</div>
+    <button class="nav-item" onclick="switchTab('goals')">
+      <span class="nav-icon">🪨</span> Goals & Rocks
+    </button>
+    <button class="nav-item" onclick="switchTab('scheduled')">
+      <span class="nav-icon">📅</span> Scheduled Actions
+    </button>
+    <button class="nav-item" onclick="switchTab('social')">
+      <span class="nav-icon">📱</span> Social Media
+    </button>
+  </nav>
+
+  <nav class="nav-section">
+    <div class="nav-label">Communications</div>
+    <button class="nav-item" onclick="switchTab('messages')">
+      <span class="nav-icon">✉</span> Messages
+      <span class="nav-dot" id="msg-dot"></span>
+      <span class="msg-badge-sidebar" id="msg-badge">0</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">Eridion Glass LLC · Dallas TX</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="hamburger" id="hamburger" onclick="openSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div>
+        <div class="topbar-title" id="topbar-title">Brief</div>
+        <div class="topbar-sub" id="topbar-sub">Morning brief · Jericho</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="refresh-btn" onclick="loadAll()" title="Refresh">↻</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="tab-brief"></div>
+    <div id="tab-weekly5" style="display:none"></div>
+    <div id="tab-scoreboard" style="display:none"></div>
+    <div id="tab-jobs" style="display:none"></div>
+    <div id="tab-subs" style="display:none"></div>
+    <div id="tab-training" style="display:none"></div>
+    <div id="tab-nutrition" style="display:none"></div>
+    <div id="tab-goals" style="display:none"></div>
+    <div id="tab-scheduled" style="display:none"></div>
+    <div id="tab-social" style="display:none"></div>
+    <div id="tab-messages" style="display:none"></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -333,52 +595,107 @@
 
 <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" multiple>
 
+<!-- Weekly 5 check-in modal -->
+<div class="modal-overlay" id="w5-checkin-modal">
+  <div class="modal">
+    <div class="modal-title">Week check-in</div>
+    <div class="modal-sub">How did it go? Jericho will use this to improve future picks.</div>
+    <input type="hidden" id="w5-complete-flag" value="1">
+    <textarea class="field-input" id="w5-note-input" placeholder="Optional — what happened? What did you learn? What got in the way?" rows="4" style="margin-bottom:10px"></textarea>
+    <button class="submit-btn" onclick="submitW5Checkin()">Save check-in</button>
+    <button class="modal-close" onclick="document.getElementById('w5-checkin-modal').classList.remove('open')">Cancel</button>
+  </div>
+</div>
+
 <script>
 const WORKER = 'https://frosty-base-f01e.erikagonzalez103.workers.dev';
 
-const MONDAY_STATUSES = [
-  'Awaiting Readiness','Quoting','Ready for Measure','Awaiting PO #',
-  'Material delivery sch','Measured','In Production','Ready for Install',
-  'Currently Installing','Installed & Complete','Invoice sent',
-  'Warranty work needed','Warranty work complete','Change Order - Quo',
-  'Change Order - Mea','Change Order - Inst','On Hold'
-];
+const JOURNAL = `You are Jericho — the personal AI operating system for Dion Harrison. You are his Chief of Staff, Performance Coach, Operations Manager, and the one person in his life who will tell him when he's full of it.
 
-const STATUS_COLOR = {
-  'Awaiting Readiness':'badge-gray','Quoting':'badge-gray',
-  'Ready for Measure':'badge-blue','Awaiting PO #':'badge-amber',
-  'Material delivery sch':'badge-amber','Measured':'badge-blue',
-  'In Production':'badge-amber','Ready for Install':'badge-amber',
-  'Currently Installing':'badge-amber','Installed & Complete':'badge-green',
-  'Invoice sent':'badge-green','Warranty work needed':'badge-red',
-  'Warranty work complete':'badge-green','Change Order - Quo':'badge-amber',
-  'Change Order - Mea':'badge-amber','Change Order - Inst':'badge-amber',
-  'On Hold':'badge-red'
+You are NOT a chatbot. NOT a yes-machine. NOT a motivational poster that talks.
+
+PERSONALITY: Direct, no fluff. Roast level 5/10 — Aussie-calibrated. Dry humor, earned not forced. Emojis when the moment earns it. Pushes back when Dion is wrong. Checks multiple sources before asserting. Quotes books in context, never decoratively.
+
+HARD RULES: Never schedule without confirmation. Never send emails. Never touch money or contracts. If uncertain, say so then verify.
+
+WHO DION IS: Australian, 40+, master glazier 25+ years, Co-founder Eridion Glass LLC Dallas TX. Wakes 4:30-5am. Trains like it's a second job. Laughs easily. Tends to bury the most important thing in a side note — watch for this. Avoidance pattern: when things feel hard, he gets busy. Busy ≠ productive. Call it out. Partner: Erika Harrison (co-founder CEO/marketing/financials). Dog: Ryder. Bed 8:30pm — protect this.
+
+SCHEDULE: Mon/Wed/Fri 5am pool swim. Tue/Thu 5am gym weights. Work 8am-4pm. Afternoon run or bike. Morning brief 6:30am. Evening brief 8pm.
+
+INJURIES (always monitor): (1) Shin splints — active, manageable, no >10% weekly run mileage increase. (2) Groin — recurring, flared last marathon, watch hip flexor load. (3) Lower back S1 — chronic, managed, monitor heavy deadlift/squat. Never tell him to stop — offer modification first. Flag patterns not single sessions. Ignore twice → roast him.
+
+RACES: Marathon #2 Oklahoma April 2026. Escape from Alcatraz June 2026 (1.5mi swim/18mi bike/8mi run). Phase: post-marathon into triathlon build.
+
+TRAINING: Self-coached. Garmin is truth. Jericho IS the coaching layer. 80/20 principle (Fitzgerald) — 80% low intensity. Balance swim/bike/run + lifting.
+
+NUTRITION: No logging. Eats by feel + 20yr experience. Voice dump method. Learn his rotation. If he says "usual" without detail → roast him. "Usual" is not data. Macro estimates ±15-20% — good enough for patterns.
+
+ERIDION GLASS: Specialty glass & glazing, residential luxury + small commercial, DFW + Central Arkansas. Sweet spot $1M+ homes. 90% revenue from builder contracts = biggest business risk. April 2026 slow = pipeline problem not skill. Eridion 2.0: more builders, custom residential, factory + second truck. Clients: Grand Homes, Hines Homes, Lingenfelter, Martyn Hammer, Gutman, DR Horton. DNC: Casa Linda, David Goettsche/Desco. Team: Dion (field/CEO transition), Erika (business), Zuritex (Dallas/Zelle), Ryan Gordano/Citizens Glass (Little Rock/ACH).
+
+CEO TRANSITION: Moving from technician to CEO. CEO owns: revenue, cash, pipeline, strategic relationships, big decisions. CEO does NOT own: routine install Q's, chasing hardware, rescheduling crews.
+
+GOALS: Currently only in Dion's head — fixing this is priority. Bring up every evening brief until goal session is booked. He's said: more builder contracts, small factory, second truck, custom residential growth.
+
+BOOKS (quote in context, earned not sprinkled): Meditations/Aurelius — stoic discipline, control what you can; Blue Ocean/Kim-Mauborgne — reconstruct market boundaries; Good to Great/Collins — Hedgehog Concept, Flywheel; Think Grow Rich/Hill — Definiteness of Purpose; Millionaire Mind/Eker — money blueprint; E-Myth/Gerber — technician trap, systems over heroics; Traction/Wickman — EOS Rocks Scorecard; Rich Dad Poor Dad/Kiyosaki — assets vs liabilities; 80/20 Running/Fitzgerald — train easy most of the time; Bigger Leaner Stronger/Matthews — progressive overload, balance strength vs endurance volume.
+
+FRANCISCO: Erika's AI agent, same Cloudflare worker. Jericho owns field ops/training/nutrition/Dion's brief. Francisco owns business dev/billing/Erika's brief. Neither commits without human confirmation.`;
+
+const MONDAY_STATUSES = ['Awaiting Readiness','Quoting','Ready for Measure','Awaiting PO #','Material delivery sch','Measured','In Production','Ready for Install','Currently Installing','Installed & Complete','Invoice sent','Warranty work needed','Warranty work complete','Change Order - Quo','Change Order - Mea','Change Order - Inst','On Hold'];
+
+const STATUS_COLOR = {'Awaiting Readiness':'badge-gray','Quoting':'badge-gray','Ready for Measure':'badge-blue','Awaiting PO #':'badge-amber','Material delivery sch':'badge-amber','Measured':'badge-blue','In Production':'badge-amber','Ready for Install':'badge-amber','Currently Installing':'badge-amber','Installed & Complete':'badge-green','Invoice sent':'badge-green','Warranty work needed':'badge-red','Warranty work complete':'badge-green','Change Order - Quo':'badge-amber','Change Order - Mea':'badge-amber','Change Order - Inst':'badge-amber','On Hold':'badge-red'};
+
+const HANDOFF_TYPES = [{value:'MEASUREMENT_COMPLETE',label:'Measurement complete'},{value:'VISIT_COMPLETE',label:'Visit / install complete'},{value:'SITE_ISSUE',label:'Site issue'},{value:'MATERIAL_PROBLEM',label:'Material problem'},{value:'PHOTO_UPLOADED',label:'Photos uploaded in SG'},{value:'SCHEDULE_UPDATE',label:'Schedule change'}];
+
+const TABS = {
+  'brief': {title:'Brief', sub:'Daily operating brief · Jericho'},
+  'weekly5': {title:'Weekly 5', sub:'Your growth focus this week · Jericho'},
+  'scoreboard': {title:'Scoreboard', sub:'CEO daily metrics · Eridion Glass'},
+  'jobs': {title:'Jobs', sub:'Field status updates · Monday.com'},
+  'subs': {title:'Subs', sub:'Sub-contractor coordination'},
+  'training': {title:'Training', sub:'Alcatraz build · Self-coached'},
+  'nutrition': {title:'Nutrition', sub:'Voice dump · Macro tracking'},
+  'goals': {title:'Goals & Rocks', sub:'Traction EOS · Q2 2026'},
+  'scheduled': {title:'Scheduled Actions', sub:'Friday emails · Recurring workflows'},
+  'social': {title:'Social Media', sub:'Coming soon · LinkedIn'},
+  'messages': {title:'Messages', sub:'Francisco ↔ Jericho handoff bus'}
 };
 
-let allJobs = [];
-let pendingActions = [];
-let activeTab = 'brief';
-let modalJobId = null;
-let modalBoardId = null;
-let pendingPhotos = [];
-let pendingStatusJobId = null;
+let allJobs=[], pendingActions=[], unreadMessages=[];
+let dionInbox=[], dionCalendar=[], dionUnread=0;
+let activeTab='brief', modalJobId=null, modalBoardId=null;
+let pendingPhotos=[], scorecardData={}, trainingLog=[], rocksData=[];
+let weekly5Data = { cards:[], pickedIndex:null, weekOf:'', streak:0, history:[] };
 
-function today() {
-  return new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+function today() { return new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}); }
+
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
 }
 
 function switchTab(tab) {
   activeTab = tab;
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    t.classList.toggle('active', ['brief','jobs','subs'][i] === tab);
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => {
+    if (el.textContent.trim().toLowerCase().startsWith(TABS[tab]?.title?.toLowerCase().split(' ')[0])) el.classList.add('active');
   });
-  ['brief','jobs','subs'].forEach(t => {
-    document.getElementById('tab-'+t).style.display = t === tab ? '' : 'none';
+  Object.keys(TABS).forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = t === tab ? '' : 'none';
   });
+  const t = TABS[tab];
+  if (t) {
+    document.getElementById('topbar-title').textContent = t.title;
+    document.getElementById('topbar-sub').textContent = t.sub;
+  }
+  closeSidebar();
 }
 
-function toast(msg, dur=2200) {
+function toast(msg, dur=2400) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
@@ -386,345 +703,1236 @@ function toast(msg, dur=2200) {
 }
 
 async function api(path, method='GET', body=null) {
-  const opts = { method, headers: {'Content-Type':'application/json'} };
+  const opts = {method, headers:{'Content-Type':'application/json'}};
   if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(WORKER + path, opts);
+  const r = await fetch(WORKER+path, opts);
   return r.json();
 }
 
+async function callJericho(userMsg, ctx='') {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514', max_tokens:1000,
+      system: JOURNAL + (ctx ? '\n\nCURRENT CONTEXT:\n'+ctx : ''),
+      messages:[{role:'user',content:userMsg}]
+    })
+  });
+  const data = await r.json();
+  return data.content?.[0]?.text || 'Could not reach Jericho right now.';
+}
+
 async function loadAll() {
-  document.getElementById('date-line').textContent = today();
-  renderBriefLoading();
+  document.getElementById('sidebar-date').textContent = today();
+  document.getElementById('tab-brief').innerHTML = `<div class="loading"><div class="spinner"></div><div style="font-size:13px">Jericho is thinking...</div></div>`;
   try {
-    const [briefData, actionsData] = await Promise.all([
-      api('/brief','POST',{user:'dion',mode:'standard'}),
-      api('/actions')
+    const [actionsData, msgSummary, dionBrief] = await Promise.all([
+      api('/actions'),
+      api('/handoff/summary/biff').catch(()=>({unreadCount:0,all:[]})),
+      api('/brief/dion').catch(()=>({fieldEmails:[],todayEvents:[],unreadCount:0}))
     ]);
     pendingActions = actionsData.pending || [];
-    allJobs = extractJobs(briefData);
-    renderBrief(briefData);
+    unreadMessages = msgSummary.all || [];
+    dionInbox = dionBrief.fieldEmails || [];
+    dionCalendar = dionBrief.todayEvents || [];
+    dionUnread = dionBrief.unreadCount || 0;
+    allJobs = pendingActions.filter(a=>a.forDion).map(a=>({
+      id:a.jobName||a.id, name:a.jobName||'Unknown job',
+      builder:a.builder||'', status:a.jobStatus||'',
+      daysSince:a.daysSince||0, urgent:a.urgent||false, boardId:'4072242499'
+    }));
+    updateMsgBadge(unreadMessages.length);
+    await generateBrief();
+    renderScoreboard();
     renderJobs();
     renderSubs();
+    renderTraining();
+    renderNutrition();
+    renderGoals();
+    renderScheduled();
+    renderSocial();
+    renderMessages();
   } catch(e) {
-    document.getElementById('tab-brief').innerHTML =
-      `<div class="empty">Could not connect to Biff. Check your connection and try again.</div>`;
+    document.getElementById('tab-brief').innerHTML = `<div class="empty">Could not connect. Check your connection and try again.</div>`;
   }
 }
 
-function extractJobs(brief) {
-  const jobs = [];
-  const dionActions = (pendingActions || []).filter(a => a.forDion);
-  return dionActions.map(a => ({
-    id: a.jobName || a.id,
-    name: a.jobName || 'Unknown job',
-    builder: a.builder || '',
-    status: a.jobStatus || '',
-    daysSince: a.daysSince || 0,
-    urgent: a.urgent || false,
-    boardId: '4072242499'
-  }));
+function updateMsgBadge(n) {
+  const badge = document.getElementById('msg-badge');
+  const dot = document.getElementById('msg-dot');
+  if (n>0) { badge.textContent=n; badge.classList.add('show'); dot.classList.add('show'); }
+  else { badge.classList.remove('show'); dot.classList.remove('show'); }
 }
 
-function renderBriefLoading() {
-  document.getElementById('tab-brief').innerHTML =
-    `<div class="loading"><div class="spinner"></div>Loading your brief...</div>`;
+async function generateBrief() {
+  const hour = new Date().getHours();
+  const isEvening = hour >= 19;
+  const day = new Date().toLocaleDateString('en-US',{weekday:'long'});
+  const dayNum = new Date().getDay();
+  const isSwim = [1,3,5].includes(dayNum);
+  const isGym = [2,4].includes(dayNum);
+  const sessionType = isSwim ? 'swim morning' : isGym ? 'gym/weights morning' : 'run or bike afternoon';
+  const urgentMsgs = unreadMessages.filter(m=>m.priority==='high');
+  const jobAlerts = pendingActions.filter(a=>a.forDion);
+
+  // Format calendar events for context
+  const calendarSummary = dionCalendar.length
+    ? dionCalendar.map(e=>`${e.start}${e.end?' - '+e.end:''}: ${e.subject}${e.location?' @ '+e.location:''}`).join('\n')
+    : 'No calendar events found for today';
+
+  // Format field emails for context
+  const inboxSummary = dionInbox.length
+    ? dionInbox.slice(0,8).map(e=>`FROM: ${e.from} | SUBJECT: ${e.subject} | ${e.isRead?'Read':'UNREAD'}`).join('\n')
+    : 'No field-relevant emails in inbox';
+
+  const ctx = `Time: ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})} · ${day}
+Brief type: ${isEvening?'EVENING':'MORNING'}
+Today's training: ${sessionType}
+Unread messages from Erika/Francisco: ${unreadMessages.length} (${urgentMsgs.length} urgent)
+Stale job alerts: ${jobAlerts.length}${jobAlerts.length?' — '+jobAlerts.map(j=>j.name+'('+j.daysSince+'d)').join(', '):''}
+Scorecard: ${Object.keys(scorecardData).length>0?JSON.stringify(scorecardData):'none entered yet'}
+
+DION'S OUTLOOK INBOX (field-relevant emails, last 7 days):
+${inboxSummary}
+Total unread: ${dionUnread}
+
+DION'S CALENDAR TODAY:
+${calendarSummary}`;
+
+  const morningPrompt = `Generate Dion's morning brief. Be direct, specific, human — Jericho's voice, Aussie-calibrated roast level 5. Use actual calendar and inbox data in context. Return ONLY valid JSON, no markdown, no extra text:
+{"scoreboard_pulse":"1-3 sentences flagging anything off in the business. If nothing flagged say so briefly.","todays_todos":"3-5 specific to-dos, most important first, as a newline-separated list","key_business_actions":"1-3 CEO-level moves for today, not technician tasks. Reference any relevant inbox emails.","training_plan":"Today is ${sessionType} day. Specific session with purpose, target effort, and injury notes for shin splints/groin/S1.","time_blocked_schedule":"Hour-by-hour schedule using ACTUAL calendar events plus training and work blocks. Be realistic.","meal_ideas":"2-3 meal suggestions matching training load. Real food, not a nutrition textbook.","motivating_thing":"One thing to look forward to or a book quote that genuinely fits today. Take the piss if it's earned."}`;
+
+  const eveningPrompt = `Generate Dion's evening brief. Honest, direct — Jericho's voice. Reference calendar events if relevant. Return ONLY valid JSON, no markdown, no extra text:
+{"day_review":"Honest take on today. What got done, what didn't. No sugarcoating.","tomorrow_top3":"Tomorrow's top 3 priorities and the very first move of the day.","loose_ends":"Anything unclosed today that'll leak into tomorrow. If nothing, say so.","training_recovery":"Recovery check — what the body needs tonight. Sleep target 8:30pm.","one_learning":"One thing worth logging — decision, mistake, win, or insight. Has he booked his goal-setting session yet? If not, mention it."}`;
+
+  try {
+    const text = await callJericho(isEvening ? eveningPrompt : morningPrompt, ctx);
+    const clean = text.replace(/```json|```/g,'').trim();
+    const sections = JSON.parse(clean);
+    renderBrief(sections, isEvening, urgentMsgs, jobAlerts);
+  } catch(e) {
+    renderBriefFallback(isEvening, urgentMsgs, jobAlerts);
+  }
 }
 
-function renderBrief(brief) {
-  const dionAlerts = pendingActions.filter(a => a.forDion && !a.dismissed);
-  const subItems = (brief.subEmails?.invoices || []).concat(brief.subEmails?.timesheets || []);
+function renderBriefFallback(isEvening, urgentMsgs, jobAlerts) {
+  renderBrief({
+    scoreboard_pulse: 'Could not generate brief — check connection and refresh.',
+    todays_todos: '', key_business_actions: '', training_plan: '',
+    time_blocked_schedule: '', meal_ideas: '', motivating_thing: '',
+    day_review: 'Could not generate brief — check connection and refresh.',
+    tomorrow_top3: '', loose_ends: '', training_recovery: '', one_learning: ''
+  }, isEvening, urgentMsgs, jobAlerts);
+}
 
+const MORNING_SECTIONS = [
+  { key:'scoreboard_pulse',    icon:'📊', label:'Scoreboard Pulse'      },
+  { key:'todays_todos',        icon:'✅', label:"Today's To-Do's"       },
+  { key:'key_business_actions',icon:'🎯', label:'Key Business Actions'  },
+  { key:'training_plan',       icon:'🏊', label:'Training Plan'         },
+  { key:'time_blocked_schedule',icon:'🕐',label:'Time-Blocked Schedule' },
+  { key:'meal_ideas',          icon:'🥗', label:'Meal Ideas'            },
+  { key:'motivating_thing',    icon:'⚡', label:'One Motivating Thing'  },
+];
+
+const EVENING_SECTIONS = [
+  { key:'day_review',       icon:'📋', label:'Day Review'        },
+  { key:'tomorrow_top3',    icon:'🎯', label:"Tomorrow's Top 3"  },
+  { key:'loose_ends',       icon:'🔗', label:'Loose Ends'        },
+  { key:'training_recovery',icon:'💪', label:'Training Recovery' },
+  { key:'one_learning',     icon:'📚', label:'One Learning'      },
+];
+
+function renderBrief(sections, isEvening, urgentMsgs, jobAlerts) {
+  const timeStr = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   let html = '';
 
-  if (dionAlerts.length) {
-    html += `<div class="section-label">Needs your attention</div>`;
-    dionAlerts.forEach(a => {
-      html += `<div class="card ${a.urgent ? 'alert-card' : ''}">
-        <div class="card-header">
-          <div>
-            <div class="card-title">${esc(a.title)}</div>
-            <div class="card-sub">${esc(a.detail || '')}</div>
+  if (urgentMsgs.length) {
+    html += `<div class="section-label">Urgent from Erika</div>`;
+    urgentMsgs.forEach(m => {
+      html += `<div class="msg-card urgent">
+        <div class="msg-hd">
+          <div class="msg-av urgent">EG</div>
+          <div class="msg-meta">
+            <div class="msg-subject">${esc(m.subject)}</div>
+            <div class="msg-detail">URGENT · Francisco</div>
           </div>
-          ${a.urgent ? '<span class="badge badge-red">Urgent</span>' : ''}
+          <span class="badge badge-red">Urgent</span>
         </div>
-        ${a.followUp ? `<div class="card-body" style="font-size:13px;color:var(--text-muted)">${esc(a.followUp)}</div>` : ''}
+        <div class="msg-body">${esc(m.body||'')}</div>
+        ${m.jobRef?`<div class="msg-job"><span class="msg-pill">Job #${esc(m.jobRef)}${m.builder?' · '+esc(m.builder):''}</span></div>`:''}
         <div class="action-row">
-          <button class="action-btn" onclick="dismissAction('${a.id}')">Dismiss</button>
-          <button class="action-btn primary" onclick="openUpdateForJob('${esc(a.jobName||'')}')">Update job</button>
+          <button class="action-btn" onclick="markRead('${esc(m.id)}')">Got it</button>
+          <button class="action-btn primary" onclick="switchTab('messages')">Reply</button>
         </div>
       </div>`;
     });
-  } else {
-    html += `<div class="card"><div class="card-body" style="padding-top:14px;color:var(--text-muted);font-size:14px;">No alerts — you're all caught up.</div></div>`;
   }
 
-  if (subItems.length) {
-    html += `<div class="section-label">Sub activity</div>`;
-    subItems.forEach(s => {
-      const doc = s.subDoc || {};
+  // Today's calendar
+  if (dionCalendar.length) {
+    html += `<div class="section-label">Your calendar today</div><div class="card">`;
+    dionCalendar.forEach(ev => {
+      html += `<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--green);font-weight:600;min-width:72px;padding-top:1px;flex-shrink:0">${esc(ev.start)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(ev.subject)}</div>
+          ${ev.location?`<div style="font-size:11px;color:var(--text-muted);margin-top:2px">📍 ${esc(ev.location)}</div>`:''}
+        </div>
+      </div>`;
+    });
+    html += `<div style="height:1px"></div></div>`;
+  }
+
+  // Unread field emails
+  const unreadField = dionInbox.filter(e=>!e.isRead);
+  if (unreadField.length) {
+    html += `<div class="section-label">Inbox — ${unreadField.length} unread</div><div class="card">`;
+    unreadField.slice(0,5).forEach(e => {
+      html += `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border)">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--blue);margin-top:5px;flex-shrink:0"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.subject)}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${esc(e.from)}</div>
+        </div>
+        ${e.importance==='high'?'<span class="badge badge-red" style="flex-shrink:0">!</span>':''}
+      </div>`;
+    });
+    html += `<div style="height:1px"></div></div>`;
+  }
+
+  // Brief sections
+  html += `<div class="section-label">${isEvening?'Evening brief':'Morning brief'} · ${timeStr}</div>
+    <div class="brief-card">
+      <div class="brief-header">
+        <div class="brief-avatar">J</div>
+        <div>
+          <div class="brief-name">Jericho</div>
+          <div class="brief-time">${timeStr} · ${isEvening?'Evening':'Morning'} brief</div>
+        </div>
+      </div>`;
+
+  const sectionDefs = isEvening ? EVENING_SECTIONS : MORNING_SECTIONS;
+  sectionDefs.forEach(s => {
+    const content = sections[s.key];
+    if (!content) return;
+    html += `<div style="border-top:1px solid var(--border);padding:14px 20px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:15px">${s.icon}</span>
+        <span style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-hint)">${s.label}</span>
+      </div>
+      <div style="font-size:14px;line-height:1.7;color:var(--text);white-space:pre-wrap">${esc(content)}</div>
+    </div>`;
+  });
+
+  html += `</div>`;
+
+  if (jobAlerts.length) {
+    html += `<div class="section-label">Job alerts — ${jobAlerts.length} stale</div>`;
+    jobAlerts.slice(0,3).forEach(a => {
       html += `<div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">${esc(doc.sub || s.from)}</div>
-            <div class="card-sub">${esc(s.subject)}</div>
+            <div class="card-title">${esc(a.title||a.name)}</div>
+            <div class="card-sub">${esc(a.detail||a.builder||'')}</div>
           </div>
-          <span class="badge ${doc.type === 'SUB_INVOICE_REMINDER' ? 'badge-red' : 'badge-amber'}">
-            ${doc.type === 'SUB_HOURS' ? 'Hours' : doc.type === 'SUB_INVOICE_REMINDER' ? 'Overdue' : 'Invoice'}
-          </span>
+          ${a.urgent?'<span class="badge badge-red">Urgent</span>':'<span class="badge badge-amber">Stale</span>'}
+        </div>
+        <div class="action-row">
+          <button class="action-btn" onclick="dismissAction('${esc(a.id)}')">Dismiss</button>
+          <button class="action-btn primary" onclick="switchTab('jobs')">Update job</button>
         </div>
       </div>`;
     });
   }
 
-  html += `<div class="section-label">Today</div>
+  html += `<div class="section-label">Ask Jericho</div>
     <div class="card">
-      <div class="card-body" style="padding-top:14px;font-size:14px;color:var(--text-muted);">
-        Tap <strong>Jobs</strong> to see your full job list and update statuses.
+      <div class="card-body" style="padding-top:14px">
+        <textarea class="field-input" id="ask-input" placeholder="Ask anything — training, business, nutrition, decisions, book question..." rows="3"></textarea>
+        <button class="submit-btn" onclick="askJericho()">Ask Jericho</button>
+        <div id="ask-response" style="margin-top:14px;font-size:13px;line-height:1.7;display:none;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border);padding-top:14px"></div>
       </div>
     </div>`;
 
   document.getElementById('tab-brief').innerHTML = html;
 }
 
+async function askJericho() {
+  const q = document.getElementById('ask-input').value.trim();
+  if (!q) { toast('Type your question first'); return; }
+  const resp = document.getElementById('ask-response');
+  resp.style.display='block'; resp.textContent='Thinking...';
+  try { resp.textContent = await callJericho(q); }
+  catch(e) { resp.textContent='Could not reach Jericho.'; }
+}
+
+function renderScoreboard() {
+  const html = `
+    <div class="section-label">CEO scoreboard — enter daily</div>
+    <div class="card">
+      <div class="scorecard-row"><div class="scorecard-label">Cash in bank</div><input class="scorecard-input" type="text" placeholder="$0" value="${scorecardData.cash||''}" onchange="scorecardData.cash=this.value"></div>
+      <div class="scorecard-row"><div class="scorecard-label">A/R aging (overdue)</div><input class="scorecard-input" type="text" placeholder="$0" value="${scorecardData.ar||''}" onchange="scorecardData.ar=this.value"></div>
+      <div class="scorecard-row"><div class="scorecard-label">Open proposals</div><input class="scorecard-input" type="text" placeholder="0" value="${scorecardData.proposals||''}" onchange="scorecardData.proposals=this.value"></div>
+      <div class="scorecard-row"><div class="scorecard-label">Booked jobs (next 2 wks)</div><input class="scorecard-input" type="text" placeholder="0" value="${scorecardData.booked||''}" onchange="scorecardData.booked=this.value"></div>
+      <div class="scorecard-row"><div class="scorecard-label">Signed sales this week</div><input class="scorecard-input" type="text" placeholder="$0" value="${scorecardData.signed||''}" onchange="scorecardData.signed=this.value"></div>
+      <div class="scorecard-row"><div class="scorecard-label">Install capacity used</div><input class="scorecard-input" type="text" placeholder="%" value="${scorecardData.capacity||''}" onchange="scorecardData.capacity=this.value"></div>
+    </div>
+
+    <div class="section-label">Ask Jericho — business analysis</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px">
+        <textarea class="field-input" id="biz-ask" placeholder="Ask about pipeline, pricing, builders, strategy, decisions..." rows="3"></textarea>
+        <button class="submit-btn" onclick="askBusiness()">Ask Jericho</button>
+        <div id="biz-response" style="margin-top:14px;font-size:13px;line-height:1.7;display:none;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border);padding-top:14px"></div>
+      </div>
+    </div>`;
+  document.getElementById('tab-scoreboard').innerHTML = html;
+}
+
+async function askBusiness() {
+  const q = document.getElementById('biz-ask').value.trim();
+  if (!q) return;
+  const resp = document.getElementById('biz-response');
+  resp.style.display='block'; resp.textContent='Thinking...';
+  try { resp.textContent = await callJericho(q, 'Context: Business/CEO question. Scorecard: '+JSON.stringify(scorecardData)); }
+  catch(e) { resp.textContent='Could not reach Jericho.'; }
+}
+
 function renderJobs() {
   let html = '';
-  if (!allJobs.length) {
-    html = `<div class="section-label">In progress</div>
-      <div class="empty">No stale jobs flagged right now.<br>All statuses are current.</div>`;
-  } else {
-    html += `<div class="section-label">Needs status update</div>`;
+  if (allJobs.length) {
+    html += `<div class="section-label">Stale jobs — ${allJobs.length} need update</div>`;
     allJobs.forEach(job => {
-      const badge = STATUS_COLOR[job.status] || 'badge-gray';
+      const badge = STATUS_COLOR[job.status]||'badge-gray';
       html += `<div class="card" id="job-card-${esc(job.id)}">
         <div class="card-header">
           <div style="flex:1;min-width:0">
             <div class="card-title">${esc(job.name)}</div>
-            <div class="card-sub">${esc(job.builder)}${job.daysSince ? ` · ${job.daysSince}d since update` : ''}</div>
+            <div class="card-sub">${esc(job.builder)}${job.daysSince?' · '+job.daysSince+'d stale':''}</div>
           </div>
-          <span class="badge ${badge}">${esc(job.status || 'No status')}</span>
+          <span class="badge ${badge}">${esc(job.status||'No status')}</span>
         </div>
-        ${job.daysSince >= 2 ? `<div class="stale-bar"><div class="stale-dot"></div>Status stale — tap to update</div>` : ''}
+        ${job.daysSince>=2?`<div class="stale-bar"><div class="stale-dot"></div>Status stale — update needed</div>`:''}
         <div class="action-row">
           <button class="action-btn" onclick="openNotePanel('${esc(job.id)}')">Add note</button>
           <button class="action-btn primary" onclick="openStatusModal('${esc(job.id)}','${esc(job.boardId)}','${esc(job.name)}')">Update status</button>
         </div>
         <div class="note-panel" id="note-panel-${esc(job.id)}">
-          <div class="photo-required">
-            <span>&#9888;</span> A photo is required before changing status
-          </div>
-          <button class="photo-btn" onclick="triggerPhoto('${esc(job.id)}')">&#128247; Attach photo</button>
+          <div class="photo-req">⚠ Photo required before status change</div>
+          <button class="photo-btn" onclick="triggerPhoto('${esc(job.id)}')">📷 Attach photo</button>
           <div class="photo-preview" id="photos-${esc(job.id)}"></div>
-          <textarea placeholder="Add a note about this job..." id="note-text-${esc(job.id)}"></textarea>
-          <button class="note-submit" id="note-submit-${esc(job.id)}" onclick="submitNote('${esc(job.id)}')">Save note</button>
+          <textarea class="field-input" placeholder="Add a note..." id="note-text-${esc(job.id)}"></textarea>
+          <button class="submit-btn" id="note-submit-${esc(job.id)}" onclick="submitNote('${esc(job.id)}')">Save note</button>
         </div>
       </div>`;
     });
+  } else {
+    html += `<div class="empty">No stale jobs — all statuses current.</div>`;
   }
 
   html += `<div class="section-label">Log a field update</div>
     <div class="card">
       <div class="card-body" style="padding-top:14px">
-        <input type="text" id="quick-job" placeholder="Job address or number"
-          style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);margin-bottom:8px">
-        <textarea id="quick-note" placeholder="What's happening on site..."
-          style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);min-height:72px;resize:none;font-family:inherit"></textarea>
-        <button class="note-submit" style="margin-top:8px" onclick="submitQuickNote()">Send to Monday</button>
+        <input class="field-input" type="text" id="quick-job" placeholder="Job address or number">
+        <textarea class="field-input" id="quick-note" placeholder="What's happening on site..." rows="3"></textarea>
+        <button class="submit-btn" onclick="submitQuickNote()">Log update</button>
       </div>
     </div>`;
-
   document.getElementById('tab-jobs').innerHTML = html;
 }
 
 function renderSubs() {
-  const html = `
+  document.getElementById('tab-subs').innerHTML = `
     <div class="section-label">Your subs</div>
     <div class="card">
       <div class="sub-row">
         <div class="sub-avatar">ZG</div>
-        <div class="sub-info">
-          <div class="sub-name">Zuritex Glass LLC</div>
-          <div class="sub-detail">Dallas · Zelle payment</div>
-        </div>
-        <button class="sub-action" onclick="draftSubText('Zuritex','Dallas')">Text</button>
+        <div class="sub-info"><div class="sub-name">Zuritex Glass LLC</div><div class="sub-detail">Dallas · Zelle payment</div></div>
+        <button class="sub-btn" onclick="prefillSub('Zuritex')">Remind</button>
       </div>
       <div class="sub-row">
         <div class="sub-avatar">RG</div>
-        <div class="sub-info">
-          <div class="sub-name">Ryan Gordano</div>
-          <div class="sub-detail">Citizens Glass · Little Rock · ACH</div>
-        </div>
-        <button class="sub-action" onclick="draftSubText('Ryan','Little Rock')">Text</button>
+        <div class="sub-info"><div class="sub-name">Ryan Gordano</div><div class="sub-detail">Citizens Glass · Little Rock · ACH</div></div>
+        <button class="sub-btn" onclick="prefillSub('Ryan')">Remind</button>
       </div>
     </div>
-    <div class="section-label">Send a reminder</div>
+    <div class="section-label">Send reminder</div>
     <div class="card">
       <div class="card-body" style="padding-top:14px">
-        <select id="sub-select" style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);margin-bottom:8px">
+        <select class="field-input" id="sub-select">
           <option value="">Select sub...</option>
           <option value="Zuritex">Zuritex Glass LLC — Dallas</option>
           <option value="Ryan">Ryan Gordano — Little Rock</option>
         </select>
-        <input type="text" id="sub-job" placeholder="Job address"
-          style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);margin-bottom:8px">
-        <input type="text" id="sub-datetime" placeholder="Date & time (e.g. Thursday 7am)"
-          style="width:100%;padding:10px 12px;border:0.5px solid var(--border-strong);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);margin-bottom:8px">
-        <button class="note-submit" onclick="sendSubReminder()">Draft reminder</button>
+        <input class="field-input" type="text" id="sub-job" placeholder="Job address">
+        <input class="field-input" type="text" id="sub-dt" placeholder="Date & time (e.g. Thursday 7am)">
+        <button class="submit-btn" onclick="sendSubReminder()">Log reminder</button>
       </div>
     </div>`;
-  document.getElementById('tab-subs').innerHTML = html;
 }
 
-function openStatusModal(jobId, boardId, jobName) {
-  modalJobId = jobId;
-  modalBoardId = boardId;
-  document.getElementById('modal-job-name').textContent = jobName;
-  const grid = document.getElementById('modal-status-grid');
-  grid.innerHTML = MONDAY_STATUSES.map(s => {
-    const badge = STATUS_COLOR[s] || 'badge-gray';
-    return `<button class="status-option" onclick="selectStatus('${esc(s)}')">${esc(s)}</button>`;
+function renderTraining() {
+  const dayNum = new Date().getDay();
+  const isSwim=[1,3,5].includes(dayNum), isGym=[2,4].includes(dayNum);
+  const todayType = isSwim?'Swim day 🏊':isGym?'Gym day 🏋':'Run / Bike day 🚴';
+  let html = `
+    <div class="section-label">Today — ${todayType}</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px">
+        <select class="field-input" id="session-type">
+          <option value="">Session type...</option>
+          <option value="Swim">Swim 🏊</option>
+          <option value="Run">Run 🏃</option>
+          <option value="Bike">Bike 🚴</option>
+          <option value="Weights">Weights 🏋</option>
+          <option value="Rest">Rest / Recovery</option>
+        </select>
+        <input class="field-input" type="text" id="session-detail" placeholder="Distance, time, sets... (e.g. 2km easy, shin splints ok)">
+        <input class="field-input" type="text" id="session-feel" placeholder="How did it feel? (1-10 + notes)">
+        <button class="submit-btn" onclick="logSession()">Log session</button>
+      </div>
+    </div>
+
+    <div class="section-label">Race calendar</div>
+    <div class="card">
+      <div class="race-row">
+        <div><div class="race-name">Marathon #2 — Oklahoma</div><div class="race-detail">26.2 miles</div></div>
+        <span class="badge badge-green">April 2026</span>
+      </div>
+      <div class="race-row">
+        <div><div class="race-name">Escape from Alcatraz</div><div class="race-detail">1.5mi swim · 18mi bike · 8mi run</div></div>
+        <span class="badge badge-blue">June 2026</span>
+      </div>
+    </div>
+
+    <div class="section-label">Injury flags — always active</div>
+    <div class="card">
+      <div class="injury-row"><span class="badge badge-amber" style="margin-right:10px;flex-shrink:0">Active</span><div class="injury-info">Shin splints<div class="injury-sub">Manageable. No >10% weekly run increase. Monitor surface and pain level.</div></div></div>
+      <div class="injury-row"><span class="badge badge-amber" style="margin-right:10px;flex-shrink:0">Watch</span><div class="injury-info">Groin — recurring<div class="injury-sub">Flared last marathon block. Monitor hip flexor load and stretching.</div></div></div>
+      <div class="injury-row"><span class="badge badge-gray" style="margin-right:10px;flex-shrink:0">Managed</span><div class="injury-info">Lower back S1<div class="injury-sub">Chronic, not limiting. Monitor heavy deadlift and squat.</div></div></div>
+    </div>
+
+    <div class="section-label">Ask Jericho — training & recovery</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px">
+        <textarea class="field-input" id="training-ask" placeholder="Ask about sessions, recovery, race prep, Alcatraz strategy..." rows="3"></textarea>
+        <button class="submit-btn" onclick="askTraining()">Ask Jericho</button>
+        <div id="training-response" style="margin-top:14px;font-size:13px;line-height:1.7;display:none;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border);padding-top:14px"></div>
+      </div>
+    </div>`;
+
+  if (trainingLog.length) {
+    html += `<div class="section-label">Recent sessions</div><div class="card">`;
+    const icons={Swim:'🏊',Run:'🏃',Bike:'🚴',Weights:'🏋',Rest:'😴'};
+    trainingLog.slice(0,5).forEach(t=>{
+      html+=`<div class="training-entry">
+        <div class="training-icon">${icons[t.type]||'🏃'}</div>
+        <div class="training-info"><div class="training-name">${esc(t.type)} — ${esc(t.detail||'logged')}</div><div class="training-detail">${esc(t.date)} · Feel: ${esc(t.feel||'—')}</div></div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  document.getElementById('tab-training').innerHTML = html;
+}
+
+function renderNutrition() {
+  document.getElementById('tab-nutrition').innerHTML = `
+    <div class="section-label">Voice dump — tell Jericho what you ate</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px">
+        <textarea class="field-input" id="nutrition-dump" placeholder="e.g. Breakfast: 4 eggs, oats, banana, black coffee. Lunch: chicken breast, rice, broccoli. Pre-run: banana and gel." rows="4"></textarea>
+        <button class="submit-btn" onclick="logNutrition()">Analyse food</button>
+        <div id="nutrition-response" style="margin-top:14px;font-size:13px;line-height:1.7;display:none;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border);padding-top:14px"></div>
+      </div>
+    </div>
+    <div class="section-label">Nutrition rules — Jericho enforces these</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px;line-height:1.8;font-size:13px">
+        <div>• Protein high enough for recovery across swim + bike + run + lifting</div>
+        <div>• Fueling windows around morning sessions — don't train fasted on long days</div>
+        <div>• Race-day fuel planning for Alcatraz is non-negotiable by May</div>
+        <div>• If you say "usual" without detail — you will be roasted</div>
+      </div>
+    </div>
+    <div class="section-label">Ask Jericho — nutrition</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px">
+        <textarea class="field-input" id="nutrition-ask" placeholder="Ask about pre-race fueling, macros, Alcatraz nutrition strategy, meal ideas..." rows="3"></textarea>
+        <button class="submit-btn" onclick="askNutrition()">Ask Jericho</button>
+        <div id="nutrition-ask-response" style="margin-top:14px;font-size:13px;line-height:1.7;display:none;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border);padding-top:14px"></div>
+      </div>
+    </div>`;
+}
+
+async function logNutrition() {
+  const dump = document.getElementById('nutrition-dump').value.trim();
+  if (!dump) { toast('Tell me what you ate first'); return; }
+  const resp = document.getElementById('nutrition-response');
+  resp.style.display='block'; resp.textContent='Calculating macros...';
+  try {
+    resp.textContent = await callJericho(
+      `Nutrition voice dump: "${dump}". Estimate macros (protein/carbs/fats/calories), assess vs training load, give a direct verdict. If he said "usual" without detail — roast him. "Usual" is not data.`,
+      'Training today: ' + (document.getElementById('session-type')?.value||'not logged')
+    );
+    document.getElementById('nutrition-dump').value='';
+  } catch(e) { resp.textContent='Could not reach Jericho.'; }
+}
+
+async function askNutrition() {
+  const q = document.getElementById('nutrition-ask').value.trim();
+  if (!q) return;
+  const resp = document.getElementById('nutrition-ask-response');
+  resp.style.display='block'; resp.textContent='Thinking...';
+  try { resp.textContent = await callJericho(q, 'Context: nutrition/fueling question'); }
+  catch(e) { resp.textContent='Could not reach Jericho.'; }
+}
+
+async function logSession() {
+  const type=document.getElementById('session-type').value;
+  const detail=document.getElementById('session-detail').value.trim();
+  const feel=document.getElementById('session-feel').value.trim();
+  if (!type) { toast('Select a session type'); return; }
+  trainingLog.unshift({type,detail,feel,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),today:true});
+  document.getElementById('session-type').value='';
+  document.getElementById('session-detail').value='';
+  document.getElementById('session-feel').value='';
+  toast('Session logged ✓');
+  renderTraining();
+}
+
+async function askTraining() {
+  const q=document.getElementById('training-ask').value.trim();
+  if (!q) return;
+  const resp=document.getElementById('training-response');
+  resp.style.display='block'; resp.textContent='Thinking...';
+  try { resp.textContent=await callJericho(q,'Context: training/recovery question. Alcatraz June 2026.'); }
+  catch(e) { resp.textContent='Could not reach Jericho.'; }
+}
+
+function renderGoals() {
+  let html=`<div class="section-label">Quarterly rocks — Q2 2026</div>`;
+  if (!rocksData.length) {
+    html+=`<div class="card">
+      <div class="card-body" style="padding-top:20px;text-align:center;padding-bottom:24px">
+        <div style="font-size:36px;margin-bottom:12px">🪨</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">No Rocks set yet</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:18px;max-width:360px;margin-left:auto;margin-right:auto">Wickman says: if it's not written, it's a wish not a Rock. Jericho will keep bringing this up until the session is booked.</div>
+        <button class="submit-btn" style="max-width:260px;margin:0 auto;display:block" onclick="startGoalSession()">Start goal session with Jericho</button>
+      </div>
+    </div>`;
+  } else {
+    html+=`<div class="card">`;
+    rocksData.forEach((r,i)=>{
+      html+=`<div class="rock-item">
+        <div class="rock-check ${r.done?'done':''}" onclick="toggleRock(${i})">${r.done?'✓':''}</div>
+        <div><div class="rock-text">${esc(r.text)}</div><div class="rock-meta">${esc(r.due||'Q2 2026')}</div></div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  html+=`<div class="section-label">Add a Rock</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px">
+        <input class="field-input" type="text" id="rock-text" placeholder="Specific, measurable, 90-day Rock">
+        <input class="field-input" type="text" id="rock-due" placeholder="Due date (e.g. June 30, 2026)">
+        <button class="submit-btn" onclick="addRock()">Add Rock</button>
+      </div>
+    </div>
+
+    <div class="section-label">1-year targets — what you've said out loud</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px;line-height:1.8;font-size:13px">
+        <div>• More builder contracts</div>
+        <div>• Small factory</div>
+        <div>• Second truck</div>
+        <div>• Custom residential growth</div>
+        <div>• Diversify from 90% builder dependency</div>
+        <div style="margin-top:10px;font-size:12px;color:var(--text-hint);border-top:1px solid var(--border);padding-top:10px">These need real numbers attached. Book the session.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Ask Jericho — goals & strategy</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px">
+        <textarea class="field-input" id="goals-ask" placeholder="Ask about Rocks, EOS, business strategy, decisions..." rows="3"></textarea>
+        <button class="submit-btn" onclick="askGoals()">Ask Jericho</button>
+        <div id="goals-response" style="margin-top:14px;font-size:13px;line-height:1.7;display:none;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border);padding-top:14px"></div>
+      </div>
+    </div>`;
+
+  document.getElementById('tab-goals').innerHTML=html;
+}
+
+async function startGoalSession() {
+  const resp=await callJericho('Start my Q2 2026 goal-setting session using the Traction/EOS framework. Ask me one question at a time. Start now.','Dion has never formally set goals. They exist only in his head. Context: more builders, factory, second truck, custom residential growth.');
+  document.getElementById('tab-goals').innerHTML=`
+    <div class="section-label">Goal session — Jericho</div>
+    <div class="brief-card">
+      <div class="brief-header"><div class="brief-avatar">J</div><div><div class="brief-name">Jericho</div><div class="brief-time">Goal session · EOS Traction</div></div></div>
+      <div class="brief-body">${esc(resp)}</div>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px">
+        <textarea class="field-input" id="goal-sess-input" placeholder="Your answer..." rows="3"></textarea>
+        <button class="submit-btn" onclick="continueGoalSession()">Continue</button>
+        <div id="goal-sess-resp" style="margin-top:14px;font-size:13px;line-height:1.7;display:none;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border);padding-top:14px"></div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:14px"><button style="background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer" onclick="renderGoals()">← Back to Goals</button></div>`;
+}
+
+async function continueGoalSession() {
+  const q=document.getElementById('goal-sess-input').value.trim();
+  if (!q) return;
+  const resp=document.getElementById('goal-sess-resp');
+  resp.style.display='block'; resp.textContent='Thinking...';
+  try {
+    resp.textContent=await callJericho(q,'Dion is in goal-setting session. Keep guiding through EOS Rocks framework. Be direct.');
+    document.getElementById('goal-sess-input').value='';
+  } catch(e) { resp.textContent='Could not reach Jericho.'; }
+}
+
+function addRock() {
+  const text=document.getElementById('rock-text').value.trim();
+  const due=document.getElementById('rock-due').value.trim();
+  if (!text) { toast('Add a Rock description'); return; }
+  rocksData.push({text,due,done:false});
+  document.getElementById('rock-text').value='';
+  document.getElementById('rock-due').value='';
+  renderGoals();
+  toast('Rock added 🪨');
+}
+
+function toggleRock(i) { rocksData[i].done=!rocksData[i].done; renderGoals(); }
+
+async function askGoals() {
+  const q=document.getElementById('goals-ask').value.trim();
+  if (!q) return;
+  const resp=document.getElementById('goals-response');
+  resp.style.display='block'; resp.textContent='Thinking...';
+  try { resp.textContent=await callJericho(q,'Context: goals/strategy question. EOS Traction framework.'); }
+  catch(e) { resp.textContent='Could not reach Jericho.'; }
+}
+
+function renderSocial() {
+  document.getElementById('tab-social').innerHTML=`
+    <div class="coming-soon">
+      <div class="coming-soon-icon">📱</div>
+      <div class="coming-soon-title">Social media — coming soon</div>
+      <div class="coming-soon-sub">Content from the perspective of a 40+ owner-operator who trains like an athlete, runs a hands-on business, and refuses to pick just one.<br><br>Platform: LinkedIn · Once per week<br><br>This lane activates when you say so. Francisco handles the content system. Jericho feeds field content in.</div>
+    </div>`;
+}
+
+function renderScheduled() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun, 5=Fri
+  const isFriday = dayOfWeek === 5;
+  const daysUntilFriday = dayOfWeek <= 5 ? 5 - dayOfWeek : 6;
+  const nextFriday = new Date(today);
+  nextFriday.setDate(today.getDate() + daysUntilFriday);
+  const fridayStr = nextFriday.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  let html = `
+    <div class="section-label">Recurring actions</div>
+    <div class="card">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">📧 Friday morning emails</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Builder ETA requests + Sub availability lock-in · Every Friday 9am</div>
+        </div>
+        <span class="badge ${isFriday ? 'badge-green' : 'badge-amber'}">${isFriday ? 'Today' : fridayStr}</span>
+      </div>
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;opacity:0.5">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">📊 Half-yearly builder evaluation</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Company evaluation email to all active builders · Coming soon</div>
+        </div>
+        <span class="badge badge-gray">Parked</span>
+      </div>
+    </div>
+
+    <div class="section-label">Friday email drafts — builder ETA requests</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:16px;padding-bottom:16px;text-align:center">
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Jericho reads your Monday boards, finds all jobs in "Awaiting Readiness" or "Ready for Measure", groups them by PM, and drafts one email per PM ready for you to review and send.</div>
+        <button class="submit-btn" style="max-width:260px;margin:0 auto;display:block" onclick="loadFridayEmails()">Generate Friday drafts</button>
+      </div>
+    </div>
+
+    <div id="friday-drafts-container"></div>
+
+    <div class="section-label">Friday email drafts — sub availability</div>
+    <div id="sub-drafts-container">
+      ${renderSubDrafts()}
+    </div>`;
+
+  document.getElementById('tab-scheduled').innerHTML = html;
+}
+
+function renderSubDrafts() {
+  const today = new Date();
+  const nextMonday = new Date(today);
+  nextMonday.setDate(today.getDate() + (8 - today.getDay()) % 7 || 7);
+  const nextFriday = new Date(nextMonday);
+  nextFriday.setDate(nextMonday.getDate() + 4);
+  const weekRange = `${nextMonday.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${nextFriday.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+  const mondayDate = nextMonday.toLocaleDateString('en-US',{month:'long',day:'numeric'});
+
+  const subs = [
+    { name:'Salvador', company:'Zuritex Glass LLC', email:'zuritex@email.com' },
+    { name:'Ryan Gordano', company:'Citizens Glass LLC', email:'citizensglassman@gmail.com' }
+  ];
+
+  return subs.map(sub => {
+    const subject = `Eridion Glass — Your Availability Next Week | ${weekRange}`;
+    const body = `Hi ${sub.name.split(' ')[0]},
+
+Locking in the schedule for next week (${weekRange}). I need you to confirm which days you're available so I can book jobs accordingly.
+
+Please reply with your available days:
+• Monday ${mondayDate}
+• Tuesday
+• Wednesday
+• Thursday
+• Friday
+
+I need this back by end of Friday so I can confirm job bookings. Once you confirm a day, that's locked in.
+
+Cheers,
+Dion Harrison
+Eridion Glass LLC
+214.862.8566`;
+
+    return `<div class="card" style="margin-bottom:10px">
+      <div style="padding:12px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(sub.name)} · ${esc(sub.company)}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">To: ${esc(sub.email)}</div>
+        </div>
+        <span class="badge badge-blue">Sub availability</span>
+      </div>
+      <div style="padding:12px 16px 6px">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-hint);margin-bottom:6px">Subject</div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:12px">${esc(subject)}</div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-hint);margin-bottom:6px">Body</div>
+        <textarea class="field-input" rows="10" style="font-size:12px;font-family:monospace" id="sub-draft-${esc(sub.name.split(' ')[0].toLowerCase())}">${esc(body)}</textarea>
+      </div>
+      <div class="action-row">
+        <button class="action-btn" onclick="copyDraft('sub-draft-${esc(sub.name.split(' ')[0].toLowerCase())}')">Copy email</button>
+        <button class="action-btn primary" onclick="openMailto('${esc(sub.email)}','${esc(subject)}','sub-draft-${esc(sub.name.split(' ')[0].toLowerCase())}')">Open in mail</button>
+      </div>
+    </div>`;
   }).join('');
+}
+
+async function loadFridayEmails() {
+  const container = document.getElementById('friday-drafts-container');
+  container.innerHTML = `<div class="loading"><div class="spinner"></div><div style="font-size:13px">Reading Monday boards...</div></div>`;
+
+  try {
+    const data = await api('/scheduled/friday-emails');
+
+    if (!data.builderDrafts || data.builderDrafts.length === 0) {
+      let html = `<div class="card"><div class="card-body" style="padding-top:14px;text-align:center;padding-bottom:16px">`;
+      if (data.noPM && data.noPM.length > 0) {
+        html += `<div style="font-size:13px;color:var(--amber);margin-bottom:10px">⚠ ${data.noPM.length} job${data.noPM.length>1?'s':''} found but missing PM contact info:</div>`;
+        html += data.noPM.map(j=>`<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">• ${esc(j.name)} (${esc(j.status)})</div>`).join('');
+        html += `<div style="font-size:12px;color:var(--text-hint);margin-top:10px">Add Builder/Client PM and Builder/Client PM Email to these jobs in Monday to generate drafts.</div>`;
+      } else {
+        html += `<div style="font-size:13px;color:var(--text-muted)">No eligible jobs found in "Awaiting Readiness" or "Ready for Measure".</div>`;
+      }
+      html += `</div></div>`;
+      container.innerHTML = html;
+      return;
+    }
+
+    let html = `<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">${data.builderDrafts.length} draft${data.builderDrafts.length>1?'s':''} generated · Week of ${esc(data.weekOf)}</div>`;
+
+    // Jobs missing PM info warning
+    if (data.noPM && data.noPM.length > 0) {
+      html += `<div style="background:var(--amber-dim);border:1px solid rgba(210,153,34,0.2);border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--amber)">
+        ⚠ ${data.noPM.length} job${data.noPM.length>1?'s':''} skipped — missing PM contact: ${data.noPM.map(j=>j.name).join(', ')}
+      </div>`;
+    }
+
+    data.builderDrafts.forEach((draft, i) => {
+      const draftId = `builder-draft-${i}`;
+      html += `<div class="card" style="margin-bottom:10px">
+        <div style="padding:12px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(draft.pmName)}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">To: ${esc(draft.pmEmail)} · ${draft.jobCount} job${draft.jobCount>1?'s':''}</div>
+          </div>
+          <span class="badge badge-amber">ETA request</span>
+        </div>
+        <div style="padding:8px 16px 6px">
+          <div style="font-size:11px;color:var(--text-hint);margin-bottom:4px">Jobs included:</div>
+          ${draft.jobs.map(j=>`<div style="font-size:12px;color:var(--text-muted);padding:2px 0">• ${esc(j.name)} <span style="color:var(--text-hint)">(${esc(j.status)})</span></div>`).join('')}
+        </div>
+        <div style="padding:8px 16px 6px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-hint);margin-bottom:6px">Subject</div>
+          <div style="font-size:13px;color:var(--text);margin-bottom:12px">${esc(draft.subject)}</div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-hint);margin-bottom:6px">Body</div>
+          <textarea class="field-input" rows="12" style="font-size:12px;font-family:monospace" id="${draftId}">${esc(draft.body)}</textarea>
+        </div>
+        <div class="action-row">
+          <button class="action-btn" onclick="copyDraft('${draftId}')">Copy email</button>
+          <button class="action-btn primary" onclick="openMailto('${esc(draft.pmEmail)}','${esc(draft.subject)}','${draftId}')">Open in mail</button>
+        </div>
+      </div>`;
+    });
+
+    container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = `<div class="empty">Could not load email drafts. Check connection and try again.</div>`;
+  }
+}
+
+function copyDraft(inputId) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  el.select();
+  document.execCommand('copy');
+  toast('Email copied to clipboard ✓');
+}
+
+function openMailto(email, subject, bodyInputId) {
+  const bodyEl = document.getElementById(bodyInputId);
+  const body = bodyEl ? bodyEl.value : '';
+  const mailto = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+}
+
+function renderMessages() {
+  let html='';
+  if (unreadMessages.length) {
+    html+=`<div class="section-label">From Erika — ${unreadMessages.length} unread</div>`;
+    unreadMessages.forEach(m=>{
+      const isUrgent=m.priority==='high';
+      html+=`<div class="msg-card ${isUrgent?'urgent':'unread'}" id="msg-${esc(m.id)}">
+        <div class="msg-hd">
+          <div class="msg-av ${isUrgent?'urgent':''}">EG</div>
+          <div class="msg-meta"><div class="msg-subject">${esc(m.subject)}</div><div class="msg-detail">${esc(m.type)}${isUrgent?' · URGENT':''}</div></div>
+          ${isUrgent?'<span class="badge badge-red">Urgent</span>':'<span class="badge badge-blue">New</span>'}
+        </div>
+        <div class="msg-body">${esc(m.body||'')}</div>
+        ${m.jobRef?`<div class="msg-job"><span class="msg-pill">Job #${esc(m.jobRef)}${m.builder?' · '+esc(m.builder):''}${m.address?' · '+esc(m.address):''}</span></div>`:''}
+        <div class="action-row">
+          <button class="action-btn" onclick="markRead('${esc(m.id)}')">Mark read</button>
+          <button class="action-btn primary" onclick="prefillHandoff('${esc(m.jobRef||'')}','${esc(m.builder||'')}','${esc(m.address||'')}')">Reply</button>
+        </div>
+      </div>`;
+    });
+  } else {
+    html+=`<div class="empty">No new messages from Erika.</div>`;
+  }
+  html+=`<div class="section-label">Send update to Erika</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px">
+        <select class="field-input" id="handoff-type">
+          <option value="">Type of update...</option>
+          ${HANDOFF_TYPES.map(t=>`<option value="${t.value}">${t.label}</option>`).join('')}
+        </select>
+        <input class="field-input" type="text" id="handoff-job" placeholder="Job # (Smart Glazier)">
+        <input class="field-input" type="text" id="handoff-builder" placeholder="Builder name">
+        <input class="field-input" type="text" id="handoff-address" placeholder="Job address">
+        <textarea class="field-input" id="handoff-body" placeholder="Details for Erika..." rows="3"></textarea>
+        <button class="submit-btn" onclick="sendHandoff()">Send to Erika</button>
+      </div>
+    </div>`;
+  document.getElementById('tab-messages').innerHTML=html;
+}
+
+async function markRead(msgId) {
+  try {
+    await api(`/handoff/mark-read/${msgId}`,'POST');
+    unreadMessages=unreadMessages.filter(m=>m.id!==msgId);
+    updateMsgBadge(unreadMessages.length);
+    const el=document.getElementById('msg-'+msgId);
+    if (el) el.style.opacity='0.4';
+    toast('Marked as read');
+  } catch(e) { toast('Could not mark read'); }
+}
+
+async function sendHandoff() {
+  const type=document.getElementById('handoff-type').value;
+  const jobRef=document.getElementById('handoff-job').value.trim();
+  const builder=document.getElementById('handoff-builder').value.trim();
+  const address=document.getElementById('handoff-address').value.trim();
+  const body=document.getElementById('handoff-body').value.trim();
+  if (!type||!body) { toast('Select a type and add details'); return; }
+  const label=HANDOFF_TYPES.find(t=>t.value===type)?.label||type;
+  try {
+    await api('/handoff/create','POST',{from:'biff',to:'francisco',type,
+      priority:['SITE_ISSUE','MATERIAL_PROBLEM'].includes(type)?'high':'normal',
+      subject:address?`${label} — ${address}`:label, body, jobRef, builder, address});
+    ['handoff-type','handoff-job','handoff-builder','handoff-address','handoff-body'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    toast('Sent to Erika ✓');
+  } catch(e) { toast('Could not send'); }
+}
+
+function prefillHandoff(jobRef,builder,address) {
+  setTimeout(()=>{
+    if(jobRef)document.getElementById('handoff-job').value=jobRef;
+    if(builder)document.getElementById('handoff-builder').value=builder;
+    if(address)document.getElementById('handoff-address').value=address;
+  },100);
+}
+
+function prefillSub(sub) {
+  document.getElementById('sub-select').value=sub;
+  setTimeout(()=>document.getElementById('sub-job').focus(),100);
+}
+
+function openStatusModal(jobId,boardId,jobName) {
+  modalJobId=jobId; modalBoardId=boardId;
+  document.getElementById('modal-job-name').textContent=jobName;
+  document.getElementById('modal-status-grid').innerHTML=MONDAY_STATUSES.map(s=>`<button class="status-option" onclick="selectStatus('${esc(s)}')">${esc(s)}</button>`).join('');
   document.getElementById('status-modal').classList.add('open');
 }
 
-function closeModal() {
-  document.getElementById('status-modal').classList.remove('open');
-  modalJobId = null; modalBoardId = null;
-}
+function closeModal() { document.getElementById('status-modal').classList.remove('open'); modalJobId=null; modalBoardId=null; }
 
 async function selectStatus(status) {
   if (!modalJobId) return;
-  closeModal();
-
-  const notePanel = document.getElementById('note-panel-' + modalJobId);
-  if (notePanel) {
-    notePanel.classList.add('open');
-    pendingStatusJobId = modalJobId;
-    document.getElementById('note-text-' + modalJobId).dataset.pendingStatus = status;
-    toast('Add a photo + note before status updates');
+  const id=modalJobId; closeModal();
+  const panel=document.getElementById('note-panel-'+id);
+  if (panel) {
+    panel.classList.add('open');
+    const ta=document.getElementById('note-text-'+id);
+    if (ta) ta.dataset.pendingStatus=status;
+    toast('Add photo + note to confirm');
     return;
   }
-
-  await pushStatusUpdate(modalJobId, modalBoardId, status);
+  await pushStatus(id,modalBoardId,status);
 }
 
-async function pushStatusUpdate(jobId, boardId, status) {
-  toast('Updating status...');
+async function pushStatus(jobId,boardId,status) {
+  toast('Updating...');
   try {
-    await api('/job-status','POST',{jobId, lane:'operations', status, updatedBy:'dion'});
-    toast('Status updated — Monday will reflect shortly');
+    await api('/job-status','POST',{jobId,lane:'operations',status,updatedBy:'dion'});
+    // Auto-handoff to Francisco when installed & complete
+    if (status === 'Installed & Complete') {
+      const job = allJobs.find(j=>j.id===jobId);
+      await api('/handoff/create','POST',{
+        from:'biff', to:'francisco', type:'VISIT_COMPLETE', priority:'normal',
+        subject:`Job complete — ${job?.name||jobId} · Ready to invoice`,
+        body:`Dion marked "${job?.name||jobId}" as Installed & Complete. Invoice can now be generated. Builder: ${job?.builder||'unknown'}.`,
+        jobRef:jobId, builder:job?.builder||'', address:job?.name||jobId
+      }).catch(()=>{});
+      toast('Updated ✓ — Erika notified to invoice 📧');
+    } else {
+      toast('Updated ✓');
+    }
     loadAll();
-  } catch(e) {
-    toast('Could not update — check connection');
-  }
+  } catch(e) { toast('Could not update'); }
 }
 
-function openNotePanel(jobId) {
-  const panel = document.getElementById('note-panel-' + jobId);
-  if (!panel) return;
-  panel.classList.toggle('open');
-}
+function openNotePanel(jobId) { const p=document.getElementById('note-panel-'+jobId); if(p) p.classList.toggle('open'); }
 
-function triggerPhoto(jobId) {
-  const input = document.getElementById('photo-input');
-  input.dataset.jobId = jobId;
-  input.click();
-}
+function triggerPhoto(jobId) { const i=document.getElementById('photo-input'); i.dataset.jobId=jobId; i.click(); }
 
-document.getElementById('photo-input').addEventListener('change', function(e) {
-  const jobId = this.dataset.jobId;
-  const preview = document.getElementById('photos-' + jobId);
+document.getElementById('photo-input').addEventListener('change',function(e){
+  const jobId=this.dataset.jobId;
+  const preview=document.getElementById('photos-'+jobId);
   if (!preview) return;
-  Array.from(e.target.files).forEach(file => {
-    pendingPhotos.push({ jobId, file });
-    const img = document.createElement('img');
-    img.className = 'photo-thumb';
-    img.src = URL.createObjectURL(file);
+  Array.from(e.target.files).forEach(file=>{
+    pendingPhotos.push({jobId,file});
+    const img=document.createElement('img');
+    img.className='photo-thumb';
+    img.src=URL.createObjectURL(file);
     preview.appendChild(img);
   });
 });
 
 async function submitNote(jobId) {
-  const text = document.getElementById('note-text-' + jobId)?.value?.trim();
-  const photos = pendingPhotos.filter(p => p.jobId === jobId);
-  const pendingStatus = document.getElementById('note-text-' + jobId)?.dataset?.pendingStatus;
-
-  if (!text && !photos.length) { toast('Add a note or photo first'); return; }
-
-  const btn = document.getElementById('note-submit-' + jobId);
-  btn.disabled = true; btn.textContent = 'Saving...';
-
+  const ta=document.getElementById('note-text-'+jobId);
+  const text=ta?.value?.trim();
+  const photos=pendingPhotos.filter(p=>p.jobId===jobId);
+  const pendingStatus=ta?.dataset?.pendingStatus;
+  if (!text&&!photos.length) { toast('Add a note or photo first'); return; }
+  const btn=document.getElementById('note-submit-'+jobId);
+  btn.disabled=true; btn.textContent='Saving...';
   try {
-    await api('/note','POST',{ jobId, from:'dion', message: text || '(photo attached)' });
-    if (pendingStatus) {
-      await pushStatusUpdate(jobId, '4072242499', pendingStatus);
-    }
-    pendingPhotos = pendingPhotos.filter(p => p.jobId !== jobId);
-    document.getElementById('note-panel-' + jobId).classList.remove('open');
-    toast('Note saved');
-  } catch(e) {
-    toast('Could not save — check connection');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Save note';
-  }
+    await api('/note','POST',{jobId,from:'dion',message:text||'(photo attached)'});
+    if (pendingStatus) await pushStatus(jobId,'4072242499',pendingStatus);
+    pendingPhotos=pendingPhotos.filter(p=>p.jobId!==jobId);
+    document.getElementById('note-panel-'+jobId).classList.remove('open');
+    toast('Saved ✓');
+  } catch(e) { toast('Could not save'); }
+  finally { btn.disabled=false; btn.textContent='Save note'; }
 }
 
 async function submitQuickNote() {
-  const jobId = document.getElementById('quick-job')?.value?.trim();
-  const note = document.getElementById('quick-note')?.value?.trim();
-  if (!jobId || !note) { toast('Enter job and note'); return; }
-  try {
-    await api('/note','POST',{ jobId, from:'dion', message: note });
-    document.getElementById('quick-job').value = '';
-    document.getElementById('quick-note').value = '';
-    toast('Note logged to Monday');
-  } catch(e) { toast('Could not save'); }
+  const jobId=document.getElementById('quick-job')?.value?.trim();
+  const note=document.getElementById('quick-note')?.value?.trim();
+  if (!jobId||!note) { toast('Enter job and note'); return; }
+  try { await api('/note','POST',{jobId,from:'dion',message:note}); document.getElementById('quick-job').value=''; document.getElementById('quick-note').value=''; toast('Logged ✓'); }
+  catch(e) { toast('Could not save'); }
 }
 
-async function dismissAction(actionId) {
-  try {
-    await api('/actions/dismiss','POST',{ actionId });
-    pendingActions = pendingActions.filter(a => a.id !== actionId);
-    renderBrief({});
-    toast('Dismissed');
-  } catch(e) { toast('Could not dismiss'); }
-}
-
-function openUpdateForJob(jobName) {
-  const job = allJobs.find(j => j.name === jobName);
-  if (job) {
-    switchTab('jobs');
-    openStatusModal(job.id, job.boardId, job.name);
-  } else {
-    switchTab('jobs');
-    toast('Find the job below and tap Update status');
-  }
-}
-
-function draftSubText(sub, market) {
-  const jobInput = document.getElementById('sub-job');
-  document.getElementById('sub-select').value = sub;
-  switchTab('subs');
-  if (jobInput) jobInput.focus();
+async function dismissAction(id) {
+  try { await api('/actions/dismiss','POST',{actionId:id}); pendingActions=pendingActions.filter(a=>a.id!==id); toast('Dismissed'); }
+  catch(e) { toast('Could not dismiss'); }
 }
 
 async function sendSubReminder() {
-  const sub = document.getElementById('sub-select').value;
-  const job = document.getElementById('sub-job').value.trim();
-  const dt = document.getElementById('sub-datetime').value.trim();
-  if (!sub || !job || !dt) { toast('Fill in all fields'); return; }
-  const message = `Hey — reminder you're at ${job} on ${dt}. Let me know if anything changes.`;
-  await api('/note','POST',{ jobId: job, from:'dion', message: `Sub reminder drafted for ${sub}: ${message}` });
-  toast('Reminder logged — send to ' + sub);
-  document.getElementById('sub-job').value = '';
-  document.getElementById('sub-datetime').value = '';
+  const sub=document.getElementById('sub-select').value;
+  const job=document.getElementById('sub-job').value.trim();
+  const dt=document.getElementById('sub-dt').value.trim();
+  if (!sub||!job||!dt) { toast('Fill in all fields'); return; }
+  await api('/note','POST',{jobId:job,from:'dion',message:`Reminder for ${sub}: on site at ${job} — ${dt}`});
+  toast('Logged ✓');
+  document.getElementById('sub-job').value=''; document.getElementById('sub-dt').value='';
 }
 
-function esc(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ── WEEKLY 5 ──────────────────────────────────────────────────────────
+
+const W5_CATEGORIES = [
+  { id:'strategy',   icon:'🎯', label:'Goals & Strategy',      color:'badge-purple' },
+  { id:'learning',   icon:'📚', label:'Learning',               color:'badge-blue'   },
+  { id:'relations',  icon:'🤝', label:'Relationships',          color:'badge-green'  },
+  { id:'system',     icon:'⚙',  label:'Business System',        color:'badge-amber'  },
+  { id:'mindset',    icon:'🧠', label:'Leadership & Mindset',   color:'badge-gray'   },
+];
+
+function getWeekOf() {
+  const d = new Date();
+  const day = d.getDay();
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  return monday.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 }
 
-document.getElementById('date-line').textContent = today();
+function isMonday() { return new Date().getDay() === 1; }
+
+function loadW5State() {
+  try {
+    const saved = localStorage.getItem('jericho_w5');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      weekly5Data = parsed;
+    }
+  } catch(e) {}
+}
+
+function saveW5State() {
+  try { localStorage.setItem('jericho_w5', JSON.stringify(weekly5Data)); } catch(e) {}
+}
+
+async function generateWeekly5() {
+  const weekOf = getWeekOf();
+  const lastPick = weekly5Data.history.slice(-1)[0];
+  const lastCategory = lastPick ? lastPick.category : 'none';
+  const streak = weekly5Data.streak || 0;
+
+  const ctx = `Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}.
+Week of: ${weekOf}
+Current streak: ${streak} weeks completed
+Last week's pick: ${lastPick ? lastPick.title + ' (category: '+lastPick.category+')' : 'none — first week'}
+Last week outcome: ${lastPick ? (lastPick.completed ? 'Completed. Note: '+lastPick.note : 'Not completed. Reason: '+lastPick.note) : 'N/A'}
+Current business situation: Eridion 2.0 push, slow April, pipeline needs work, 90% builder dependency risk.
+Training phase: Post-marathon, building toward Alcatraz June 2026.
+Goals status: Not yet written down — goal-setting session still needed.
+Eridion differentiator: Still unresolved — needs answering.`;
+
+  const prompt = `Generate this week's Weekly 5 growth items for Dion. One item per category. Make them specific, actionable, and context-aware based on where he is right now.
+
+Categories and what each should contain:
+1. GOALS & STRATEGY — something that moves Eridion 2.0 forward or addresses the differentiator question or pipeline risk
+2. LEARNING — one of: a book chapter/section to read, a podcast episode (business/glazing/endurance), a TED talk, OR a trade learning (storefront systems, glass types, curtain wall, installation techniques, new products, industry trends) — vary it week to week
+3. RELATIONSHIPS — a specific relationship action: builder lunch, designer outreach, referral partner call, sub check-in, or new contact
+4. BUSINESS SYSTEM — one process, tool, or habit to build or improve: scorecards, SOPs, pricing review, Monday.com cleanup, etc.
+5. LEADERSHIP & MINDSET — a Stoic practice, framework to apply, self-reflection exercise, or leadership habit
+
+For each item return:
+- title (short, punchy, max 8 words)
+- why (1-2 sentences — why THIS week, why THIS matters for Dion specifically)
+- action (specific what-to-do, max 2 sentences)
+- time (realistic time commitment e.g. "30 mins", "1 lunch", "15 mins daily")
+- category (one of: strategy, learning, relations, system, mindset)
+
+Return ONLY valid JSON array with 5 objects, no markdown:
+[{"title":"...","why":"...","action":"...","time":"...","category":"..."}]`;
+
+  try {
+    const text = await callJericho(prompt, ctx);
+    const clean = text.replace(/```json|```/g,'').trim();
+    const cards = JSON.parse(clean);
+    weekly5Data.cards = cards;
+    weekly5Data.weekOf = weekOf;
+    weekly5Data.pickedIndex = null;
+    saveW5State();
+    renderWeekly5();
+  } catch(e) {
+    document.getElementById('tab-weekly5').innerHTML = `<div class="empty">Could not generate Weekly 5. Check connection and try again.</div>
+      <div style="text-align:center;padding-bottom:20px"><button class="submit-btn" style="max-width:200px;margin:0 auto;display:block" onclick="generateWeekly5()">Try again</button></div>`;
+  }
+}
+
+function pickCard(index) {
+  weekly5Data.pickedIndex = index;
+  saveW5State();
+  renderWeekly5();
+  toast('Focus locked in 🎯 Go get it.');
+}
+
+function markW5Complete(completed) {
+  const modal = document.getElementById('w5-checkin-modal');
+  if (modal) modal.classList.add('open');
+  document.getElementById('w5-complete-flag').value = completed ? '1' : '0';
+}
+
+function submitW5Checkin() {
+  const completed = document.getElementById('w5-complete-flag').value === '1';
+  const note = document.getElementById('w5-note-input').value.trim();
+  const picked = weekly5Data.cards[weekly5Data.pickedIndex];
+  if (!picked) return;
+
+  weekly5Data.history.push({
+    weekOf: weekly5Data.weekOf,
+    title: picked.title,
+    category: picked.category,
+    completed,
+    note: note || (completed ? 'Done.' : 'Did not complete.'),
+    completedAt: new Date().toISOString()
+  });
+
+  if (completed) {
+    weekly5Data.streak = (weekly5Data.streak || 0) + 1;
+  } else {
+    weekly5Data.streak = 0;
+  }
+
+  weekly5Data.cards = [];
+  weekly5Data.pickedIndex = null;
+  saveW5State();
+
+  document.getElementById('w5-checkin-modal').classList.remove('open');
+  document.getElementById('w5-note-input').value = '';
+  toast(completed ? 'Week complete 🔥 Streak: ' + weekly5Data.streak : 'Logged. No streak, but showing up is step one.');
+  renderWeekly5();
+}
+
+function renderWeekly5() {
+  loadW5State();
+  const weekOf = getWeekOf();
+  const hasCards = weekly5Data.cards && weekly5Data.cards.length === 5;
+  const isCurrentWeek = weekly5Data.weekOf === weekOf;
+  const streak = weekly5Data.streak || 0;
+  const hasPick = weekly5Data.pickedIndex !== null && weekly5Data.pickedIndex !== undefined;
+  const picked = hasPick ? weekly5Data.cards[weekly5Data.pickedIndex] : null;
+
+  let html = '';
+
+  // Streak bar
+  html += `<div class="section-label">Weekly growth focus</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:12px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">Week of ${weekOf}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${streak > 0 ? '🔥 '+streak+' week streak' : 'No streak yet — start this week'}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:22px;font-weight:700;color:var(--green)">${streak}</div>
+        <div style="font-size:10px;color:var(--text-hint);letter-spacing:0.5px;text-transform:uppercase">Streak</div>
+      </div>
+    </div>`;
+
+  // Active pick banner
+  if (hasPick && picked && isCurrentWeek) {
+    const cat = W5_CATEGORIES.find(c=>c.id===picked.category);
+    html += `<div class="section-label">This week's focus</div>
+      <div style="background:var(--green-dim);border:1px solid rgba(63,185,80,0.25);border-radius:var(--radius);padding:16px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:20px">${cat?.icon||'🎯'}</span>
+          <span class="badge ${cat?.color||'badge-green'}" style="font-size:10px">${cat?.label||picked.category}</span>
+          <span style="font-size:11px;color:var(--green);margin-left:auto">● Active</span>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">${esc(picked.title)}</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;line-height:1.5">${esc(picked.action)}</div>
+        <div style="font-size:11px;color:var(--text-hint)">⏱ ${esc(picked.time)}</div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button class="action-btn" onclick="markW5Complete(false)" style="flex:1">Didn't get to it</button>
+          <button class="action-btn primary" onclick="markW5Complete(true)" style="flex:1">Done ✓</button>
+        </div>
+      </div>`;
+  }
+
+  // Generate or regenerate
+  if (!hasCards || !isCurrentWeek) {
+    html += `<div class="card">
+      <div class="card-body" style="padding-top:20px;text-align:center;padding-bottom:24px">
+        <div style="font-size:36px;margin-bottom:12px">⚡</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">${isCurrentWeek && !hasCards ? 'Ready to generate' : 'New week, new 5'}</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:18px">Jericho picks 5 context-aware growth actions — one from each lane. You pick one. That's your focus for the week.</div>
+        <button class="submit-btn" style="max-width:260px;margin:0 auto;display:block" onclick="generateWeekly5Loading()">Generate my Weekly 5</button>
+      </div>
+    </div>`;
+  } else {
+    // Show all 5 cards
+    html += `<div class="section-label">${hasPick ? 'All 5 — grab another anytime' : 'Pick your focus for the week'}</div>`;
+    weekly5Data.cards.forEach((card, i) => {
+      const cat = W5_CATEGORIES.find(c=>c.id===card.category);
+      const isPicked = weekly5Data.pickedIndex === i;
+      html += `<div class="card" style="${isPicked?'opacity:0.5;':''}">
+        <div class="card-header">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:16px">${cat?.icon||'📌'}</span>
+              <span class="badge ${cat?.color||'badge-gray'}">${cat?.label||card.category}</span>
+              <span style="font-size:11px;color:var(--text-hint);margin-left:auto">⏱ ${esc(card.time)}</span>
+            </div>
+            <div class="card-title">${esc(card.title)}</div>
+            <div class="card-sub" style="margin-top:4px">${esc(card.why)}</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding-top:0;font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:8px">${esc(card.action)}</div>
+        ${!isPicked ? `<div class="action-row"><button class="action-btn primary" style="flex:1" onclick="pickCard(${i})">Pick this one 🎯</button></div>` : `<div style="padding:0 16px 14px;font-size:12px;color:var(--green)">✓ This is your current focus</div>`}
+      </div>`;
+    });
+
+    // Regenerate option
+    html += `<div style="text-align:center;padding:8px 0 20px">
+      <button style="background:none;border:none;color:var(--text-hint);font-size:12px;cursor:pointer" onclick="generateWeekly5Loading()">↻ Regenerate this week's 5</button>
+    </div>`;
+  }
+
+  // History
+  if (weekly5Data.history && weekly5Data.history.length) {
+    html += `<div class="section-label">History</div><div class="card">`;
+    weekly5Data.history.slice(-5).reverse().forEach(h => {
+      html += `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border)">
+        <span style="font-size:16px;margin-top:1px">${h.completed?'✅':'❌'}</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(h.title)}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${esc(h.weekOf)} · ${h.completed?'Completed':'Not completed'}</div>
+          ${h.note && h.note !== 'Done.' && h.note !== 'Did not complete.' ? `<div style="font-size:12px;color:var(--text-hint);margin-top:3px;font-style:italic">"${esc(h.note)}"</div>` : ''}
+        </div>
+      </div>`;
+    });
+    html += `<div style="height:1px"></div></div>`;
+  }
+
+  document.getElementById('tab-weekly5').innerHTML = html;
+
+  // Show dot if no pick yet and cards exist
+  const dot = document.getElementById('w5-dot');
+  if (dot) dot.classList.toggle('show', hasCards && isCurrentWeek && !hasPick);
+}
+
+async function generateWeekly5Loading() {
+  document.getElementById('tab-weekly5').innerHTML = `<div class="loading"><div class="spinner"></div><div style="font-size:13px">Jericho is building your week...</div></div>`;
+  await generateWeekly5();
+}
+
+document.getElementById('sidebar-date').textContent=today();
 loadAll();
+renderWeekly5();
 </script>
 </body>
 </html>
