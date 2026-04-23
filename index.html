@@ -710,17 +710,23 @@ async function api(path, method='GET', body=null) {
 }
 
 async function callJericho(userMsg, ctx='') {
-  const r = await fetch('https://frosty-base-f01e.erikagonzalez103.workers.dev/api/messages', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      model:'claude-sonnet-4-20250514', max_tokens:1000,
-      system: JOURNAL + (ctx ? '\n\nCURRENT CONTEXT:\n'+ctx : ''),
-      messages:[{role:'user',content:userMsg}]
-    })
-  });
-  const data = await r.json();
-  return data.content?.[0]?.text || 'Could not reach Jericho right now.';
+  try {
+    const r = await fetch('https://frosty-base-f01e.erikagonzalez103.workers.dev/api/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        system: JOURNAL + (ctx ? '\n\nCURRENT CONTEXT:\n'+ctx : ''),
+        messages:[{role:'user',content:userMsg}]
+      })
+    });
+    if (!r.ok) return 'Error: ' + r.status + ' ' + r.statusText;
+    const data = await r.json();
+    return data.content?.[0]?.text || 'Could not reach Jericho right now.';
+  } catch (e) {
+    console.error('callJericho error:', e);
+    return 'Error: ' + e.message;
+  }
 }
 
 async function loadAll() {
