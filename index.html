@@ -148,6 +148,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #c0c0c0;
 }
 
 .topbar {
@@ -262,6 +263,18 @@ body {
 .badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,81,73,0.2); }
 .badge-gray { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
 .badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(188,140,255,0.2); }
+.option-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.option-btn:hover { border-color: var(--blue); color: var(--text); }
+.option-btn.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); font-weight: 600; }
 
 /* ── METRICS GRID ── */
 .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; margin-bottom: 12px; }
@@ -516,12 +529,14 @@ select.field-input { appearance: none; cursor: pointer; }
   </nav>
 
   <nav class="nav-section">
-    <div class="nav-label">Performance</div>
-    <button class="nav-item" onclick="switchTab('training')">
-      <span class="nav-icon">🏊</span> Training
+    <div class="nav-label">Communications</div>
+    <button class="nav-item" onclick="switchTab('email')">
+      <span class="nav-icon">✉️</span> Email
     </button>
-    <button class="nav-item" onclick="switchTab('nutrition')">
-      <span class="nav-icon">🥗</span> Nutrition
+    <button class="nav-item" onclick="switchTab('messages')">
+      <span class="nav-icon">✉</span> Messages
+      <span class="nav-dot" id="msg-dot"></span>
+      <span class="msg-badge-sidebar" id="msg-badge">0</span>
     </button>
   </nav>
 
@@ -539,11 +554,12 @@ select.field-input { appearance: none; cursor: pointer; }
   </nav>
 
   <nav class="nav-section">
-    <div class="nav-label">Communications</div>
-    <button class="nav-item" onclick="switchTab('messages')">
-      <span class="nav-icon">✉</span> Messages
-      <span class="nav-dot" id="msg-dot"></span>
-      <span class="msg-badge-sidebar" id="msg-badge">0</span>
+    <div class="nav-label">Performance</div>
+    <button class="nav-item" onclick="switchTab('training')">
+      <span class="nav-icon">🏊</span> Training
+    </button>
+    <button class="nav-item" onclick="switchTab('nutrition')">
+      <span class="nav-icon">🥗</span> Nutrition
     </button>
   </nav>
 
@@ -576,6 +592,7 @@ select.field-input { appearance: none; cursor: pointer; }
     <div id="tab-training" style="display:none"></div>
     <div id="tab-nutrition" style="display:none"></div>
     <div id="tab-goals" style="display:none"></div>
+    <div id="tab-email" style="display:none"></div>
     <div id="tab-scheduled" style="display:none"></div>
     <div id="tab-social" style="display:none"></div>
     <div id="tab-messages" style="display:none"></div>
@@ -655,6 +672,7 @@ const TABS = {
   'training': {title:'Training', sub:'Alcatraz build · Self-coached'},
   'nutrition': {title:'Nutrition', sub:'Voice dump · Macro tracking'},
   'goals': {title:'Goals & Rocks', sub:'Traction EOS · Q2 2026'},
+  'email': {title:'Email', sub:'Smart reply generator · Jericho'},
   'scheduled': {title:'Scheduled Actions', sub:'Friday emails · Recurring workflows'},
   'social': {title:'Social Media', sub:'Coming soon · LinkedIn'},
   'messages': {title:'Messages', sub:'Francisco ↔ Jericho handoff bus'}
@@ -710,23 +728,17 @@ async function api(path, method='GET', body=null) {
 }
 
 async function callJericho(userMsg, ctx='') {
-  try {
-    const r = await fetch('https://frosty-base-f01e.erikagonzalez103.workers.dev/api/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1000,
-        system: JOURNAL + (ctx ? '\n\nCURRENT CONTEXT:\n'+ctx : ''),
-        messages:[{role:'user',content:userMsg}]
-      })
-    });
-    if (!r.ok) return 'Error: ' + r.status + ' ' + r.statusText;
-    const data = await r.json();
-    return data.content?.[0]?.text || 'Could not reach Jericho right now.';
-  } catch (e) {
-    console.error('callJericho error:', e);
-    return 'Error: ' + e.message;
-  }
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514', max_tokens:1000,
+      system: JOURNAL + (ctx ? '\n\nCURRENT CONTEXT:\n'+ctx : ''),
+      messages:[{role:'user',content:userMsg}]
+    })
+  });
+  const data = await r.json();
+  return data.content?.[0]?.text || 'Could not reach Jericho right now.';
 }
 
 async function loadAll() {
@@ -756,6 +768,7 @@ async function loadAll() {
     renderTraining();
     renderNutrition();
     renderGoals();
+    renderEmail();
     renderScheduled();
     renderSocial();
     renderMessages();
@@ -1330,6 +1343,146 @@ function renderSocial() {
       <div class="coming-soon-title">Social media — coming soon</div>
       <div class="coming-soon-sub">Content from the perspective of a 40+ owner-operator who trains like an athlete, runs a hands-on business, and refuses to pick just one.<br><br>Platform: LinkedIn · Once per week<br><br>This lane activates when you say so. Francisco handles the content system. Jericho feeds field content in.</div>
     </div>`;
+}
+
+function renderEmail() {
+  document.getElementById('tab-email').innerHTML = `
+    <div class="section-label">Paste incoming email</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px;padding-bottom:14px">
+        <textarea class="field-input" id="email-input" rows="8" placeholder="Paste the email you received here..."></textarea>
+      </div>
+    </div>
+
+    <div class="section-label">Reply options</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:14px;padding-bottom:16px">
+
+        <div style="margin-bottom:14px">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-hint);margin-bottom:8px">Tone</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px" id="tone-options">
+            ${['Professional','Casual','Direct','Firm'].map((t,i) => `
+              <button class="option-btn ${i===0?'active':''}" onclick="selectOption('tone-options',this,'${t}')" data-value="${t}">${t}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-hint);margin-bottom:8px">Length</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px" id="length-options">
+            ${['Short','Medium','Detailed'].map((l,i) => `
+              <button class="option-btn ${i===1?'active':''}" onclick="selectOption('length-options',this,'${l}')" data-value="${l}">${l}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-hint);margin-bottom:8px">Intent</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px" id="intent-options">
+            ${['Confirm','Request Info','Follow Up','Push Back','Decline','General Reply'].map((intent,i) => `
+              <button class="option-btn ${i===5?'active':''}" onclick="selectOption('intent-options',this,'${intent}')" data-value="${intent}">${intent}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <button class="submit-btn" onclick="generateEmailReply()">Generate Reply</button>
+      </div>
+    </div>
+
+    <div id="email-reply-container"></div>
+  `;
+}
+
+function selectOption(groupId, btn, value) {
+  document.querySelectorAll('#' + groupId + ' .option-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function getSelectedOption(groupId) {
+  const active = document.querySelector('#' + groupId + ' .option-btn.active');
+  return active ? active.dataset.value : '';
+}
+
+async function generateEmailReply() {
+  const emailText = document.getElementById('email-input').value.trim();
+  if (!emailText) { toast('Paste an email first'); return; }
+
+  const tone = getSelectedOption('tone-options');
+  const length = getSelectedOption('length-options');
+  const intent = getSelectedOption('intent-options');
+
+  const container = document.getElementById('email-reply-container');
+  container.innerHTML = `<div class="loading"><div class="spinner"></div><div style="font-size:13px">Jericho is drafting your reply...</div></div>`;
+
+  const toneGuide = {
+    'Professional': 'polished, respectful, business-appropriate',
+    'Casual': 'friendly, relaxed, conversational — like texting a colleague you know well',
+    'Direct': 'clear and to the point, no fluff, get straight to it',
+    'Firm': 'strong, assertive, confident and dominant — makes the position clear without being rude'
+  };
+
+  const lengthGuide = {
+    'Short': '2-4 sentences maximum',
+    'Medium': 'a few short paragraphs, covering the key points',
+    'Detailed': 'thorough and comprehensive, covering all relevant details'
+  };
+
+  const prompt = `You are Jericho, Dion Harrison's personal AI assistant. Dion runs Eridion Glass LLC, a glazing and storefront contractor in Dallas, TX.
+
+Draft a reply to this email on Dion's behalf.
+
+TONE: ${tone} — ${toneGuide[tone]}
+LENGTH: ${length} — ${lengthGuide[length]}
+INTENT: ${intent}
+
+Always sign off with "My Best, Dion" — never rude, never grovelling.
+
+Incoming email:
+${emailText}
+
+Return ONLY the email reply text. No subject line, no preamble, no explanation.`;
+
+  try {
+    const resp = await fetch('https://frosty-base-f01e.erikagonzalez103.workers.dev/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const reply = data.content?.[0]?.text || 'Could not generate reply.';
+
+    const replyId = 'generated-reply';
+    container.innerHTML = `
+      <div class="section-label">Generated reply</div>
+      <div class="card">
+        <div style="padding:10px 16px 6px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)">
+          <span class="badge badge-blue">${tone}</span>
+          <span class="badge badge-gray">${length}</span>
+          <span class="badge badge-amber">${intent}</span>
+        </div>
+        <div style="padding:12px 16px 6px">
+          <textarea class="field-input" rows="12" style="font-size:13px" id="${replyId}">${esc(reply)}</textarea>
+        </div>
+        <div class="action-row">
+          <button class="action-btn" onclick="generateEmailReply()">Regenerate</button>
+          <button class="action-btn" onclick="copyDraft('${replyId}')">Copy</button>
+          <button class="action-btn primary" onclick="openEmailReply()">Open in Mail</button>
+        </div>
+      </div>`;
+  } catch(e) {
+    container.innerHTML = `<div class="empty">Could not generate reply — check connection and try again.</div>`;
+  }
+}
+
+function openEmailReply() {
+  const el = document.getElementById('generated-reply');
+  if (!el) return;
+  const mailto = `mailto:?body=${encodeURIComponent(el.value)}`;
+  window.location.href = mailto;
 }
 
 function renderScheduled() {
