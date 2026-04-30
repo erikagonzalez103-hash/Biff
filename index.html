@@ -1010,63 +1010,182 @@ async function askJericho() {
 }
 
 // ── INBOX ─────────────────────────────────────────────────────────────
+let inboxEmails = [];
+
 async function renderInbox() {
-  document.getElementById('tab-inbox').innerHTML = `<div class="loading"><div class="spinner"></div><div style="font-size:13px">Loading priority emails...</div></div>`;
+  document.getElementById('tab-inbox').innerHTML = `<div class="loading"><div class="spinner"></div><div style="font-size:13px">Reading your inbox...</div></div>`;
   try {
-    const data = await api('/brief', 'POST', {user:'dion'});
-    const priority = data.priority || [];
-    const stale = data.stale || [];
-    const vendorDocs = data.vendorDocs || [];
+    const resp = await fetch('https://frosty-base-f01e.erikagonzalez103.workers.dev/inbox/dion');
+    const data = await resp.json();
+    inboxEmails = data.emails || [];
+    const unreplied = data.unreplied || [];
+
+    if (!inboxEmails.length) {
+      document.getElementById('tab-inbox').innerHTML = `<div class="empty">No emails in the last 48 hours. Inbox is clean.</div>`;
+      return;
+    }
+
+    const catLabel = { urgent:'🔴 Urgent', po:'🟡 Purchase Order', invoice:'🟡 Invoice', priority:'🔵 Priority', info:'⚪ Info' };
+    const catColor = { urgent:'badge-red', po:'badge-amber', invoice:'badge-amber', priority:'badge-blue', info:'badge-gray' };
+
+    // Group by category
+    const groups = {};
+    inboxEmails.forEach(e => {
+      if (!groups[e.category]) groups[e.category] = [];
+      groups[e.category].push(e);
+    });
+
     let html = '';
 
-    // Priority emails
-    if (priority.length || vendorDocs.length) {
-      html += `<div class="section-label">Priority — action needed</div>`;
-      [...priority, ...vendorDocs.filter(v => v.vendorDoc?.type === 'BUILDER_PO')].forEach(e => {
-        const tag = e.type || e.vendorDoc?.type || 'general';
-        const tagColor = tag.includes('payment')||tag.includes('INVOICE') ? 'badge-green' : tag.includes('urgent') ? 'badge-red' : tag.includes('PO')||tag.includes('po') ? 'badge-amber' : 'badge-gray';
-        html += `<div class="card" style="margin-bottom:8px">
-          <div style="padding:12px 16px;display:flex;align-items:flex-start;gap:12px">
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">${esc(e.from)}</div>
-              <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${esc(e.subject)}</div>
-              <div style="font-size:11px;color:var(--text-hint)">${esc(e.preview||'')}</div>
+    // Unreplied warning banner
+    if (unreplied.length) {
+      html += `<div style="background:var(--red-dim);border:1px solid var(--red);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:4px">⚠️ ${unreplied.length} priority email${unreplied.length>1?'s':''} need${unreplied.length===1?'s':''} a reply</div>
+        ${unreplied.slice(0,3).map(u => `<div style="font-size:11px;color:var(--text-muted);margin-top:2px">${esc(u.from)} — ${esc(u.subject.substring(0,50))} · ${u.hoursAgo}h ago</div>`).join('')}
+      </div>`;
+    }
+
+    // Render by group
+    ['urgent','po','invoice','priority','info'].forEach(cat => {
+      const emails = groups[cat];
+      if (!emails || !emails.length) return;
+      html += `<div class="section-label">${catLabel[cat]||cat} (${emails.length})</div>`;
+      emails.forEach((e, i) => {
+        const globalIdx = inboxEmails.indexOf(e);
+        html += `<div class="card" style="margin-bottom:8px" id="inbox-card-${globalIdx}">
+          <div style="padding:12px 16px;display:flex;align-items:flex-start;gap:12px" onclick="toggleInboxExpand(${globalIdx})" style="cursor:pointer">
+            <div style="flex:1;min-width:0;cursor:pointer" onclick="toggleInboxExpand(${globalIdx})">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(e.from)}</div>
+                <span class="badge ${catColor[e.category]||'badge-gray'}">${catLabel[e.category]||e.category}</span>
+                ${!e.isRead?'<span class="badge badge-blue">Unread</span>':''}
+                ${e.needsReply?'<span class="badge badge-red">Needs reply</span>':''}
+              </div>
+              <div style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:3px">${esc(e.subject)}</div>
+              <div style="font-size:11px;color:var(--text-hint)">${esc(e.preview.substring(0,100))}${e.preview.length>100?'...':''}</div>
+              <div style="font-size:10px;color:var(--text-hint);margin-top:3px">${e.hoursAgo}h ago · ${esc(e.fromEmail)}</div>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-              <span class="badge ${tagColor}">${tag.replace(/_/g,' ')}</span>
-              <span style="font-size:10px;color:var(--text-hint)">${esc(e.time||'')}</span>
+          </div>
+          <div id="inbox-expand-${globalIdx}" style="display:none;border-top:1px solid var(--border);padding:12px 16px">
+            <div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:12px;white-space:pre-wrap">${esc(e.body.substring(0,400))}${e.body.length>400?'...':''}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="action-btn primary" onclick="generateInboxReply(${globalIdx})">✉️ Draft Reply</button>
+              <button class="action-btn" onclick="extractActions(${globalIdx})">📋 Extract Actions</button>
+              <button class="action-btn" onclick="addTodo('Reply to ${esc(e.from)} — ${esc(e.subject.substring(0,35))}')">✅ Add to To-Do</button>
             </div>
+            <div id="inbox-reply-${globalIdx}" style="margin-top:12px;display:none"></div>
+            <div id="inbox-actions-${globalIdx}" style="margin-top:12px;display:none"></div>
           </div>
         </div>`;
       });
-    }
+    });
 
-    // Stale — no reply in 24hrs
-    if (stale.length) {
-      html += `<div class="section-label">No reply in 24hrs</div>`;
-      stale.slice(0,5).forEach(e => {
-        html += `<div class="card" style="margin-bottom:8px">
-          <div style="padding:12px 16px;display:flex;align-items:flex-start;gap:12px">
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">${esc(e.from)}</div>
-              <div style="font-size:12px;color:var(--text-muted)">${esc(e.subject)}</div>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-              <span class="badge badge-amber">${e.staleType==='they_went_quiet'?'They went quiet':'Unread'}</span>
-              <span style="font-size:10px;color:var(--text-hint)">${e.hours}h ago</span>
-            </div>
-          </div>
-          <div class="action-row">
-            <button class="action-btn primary" onclick="addTodo('Reply to ${esc(e.from)} — ${esc(e.subject.substring(0,40))}')">Add to To-Do</button>
-          </div>
-        </div>`;
-      });
-    }
-
-    if (!html) html = `<div class="empty">No priority emails right now. Inbox is clean.</div>`;
     document.getElementById('tab-inbox').innerHTML = html;
   } catch(e) {
     document.getElementById('tab-inbox').innerHTML = `<div class="empty">Could not load inbox — check connection.</div>`;
+    console.error(e);
+  }
+}
+
+function toggleInboxExpand(idx) {
+  const el = document.getElementById('inbox-expand-' + idx);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function generateInboxReply(idx) {
+  const e = inboxEmails[idx];
+  if (!e) return;
+  const replyDiv = document.getElementById('inbox-reply-' + idx);
+  if (!replyDiv) return;
+  replyDiv.style.display = 'block';
+  replyDiv.innerHTML = `<div style="font-size:12px;color:var(--text-muted)">Jericho is drafting a reply...</div>`;
+
+  const prompt = `You are Jericho, Dion Harrison's AI assistant. Dion runs Eridion Glass LLC, a glazing and storefront contractor in Dallas TX.
+
+Draft a professional reply to this email on Dion's behalf. Be direct, clear and confident. Never rude. No signature — email client adds one.
+
+From: ${e.from} (${e.fromEmail})
+Subject: ${e.subject}
+Email body:
+${e.body.substring(0,800)}
+
+Return ONLY the reply text. No preamble, no subject line, no signature.`;
+
+  try {
+    const resp = await fetch('https://frosty-base-f01e.erikagonzalez103.workers.dev/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:600, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await resp.json();
+    const draft = data.content?.[0]?.text || 'Could not generate reply.';
+    const replyId = 'inbox-draft-' + idx;
+    replyDiv.innerHTML = `
+      <div style="font-size:11px;font-weight:600;color:var(--text-hint);text-transform:uppercase;margin-bottom:6px">Draft reply</div>
+      <textarea class="field-input" id="${replyId}" rows="6" style="font-size:12px">${esc(draft)}</textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="action-btn" onclick="generateInboxReply(${idx})">Regenerate</button>
+        <button class="action-btn" onclick="copyDraft('${replyId}')">Copy</button>
+        <button class="action-btn primary" onclick="openInboxReply(${idx})">Open in Mail</button>
+      </div>`;
+  } catch(err) {
+    replyDiv.innerHTML = `<div style="font-size:12px;color:var(--red)">Could not generate reply.</div>`;
+  }
+}
+
+function openInboxReply(idx) {
+  const e = inboxEmails[idx];
+  const el = document.getElementById('inbox-draft-' + idx);
+  if (!el || !e) return;
+  const mailto = `mailto:${encodeURIComponent(e.fromEmail)}?subject=${encodeURIComponent('Re: ' + e.subject)}&body=${encodeURIComponent(el.value)}`;
+  window.location.href = mailto;
+}
+
+async function extractActions(idx) {
+  const e = inboxEmails[idx];
+  if (!e) return;
+  const actDiv = document.getElementById('inbox-actions-' + idx);
+  if (!actDiv) return;
+  actDiv.style.display = 'block';
+  actDiv.innerHTML = `<div style="font-size:12px;color:var(--text-muted)">Extracting action items...</div>`;
+
+  const prompt = `You are Jericho. Extract specific action items from this email that Dion Harrison needs to action.
+
+From: ${e.from}
+Subject: ${e.subject}
+Body: ${e.body.substring(0,600)}
+
+Return a JSON array of action items like this:
+[{"task":"Reply to John re quote","urgent":true},{"task":"Send updated schedule","urgent":false}]
+
+Return ONLY valid JSON. No explanation. If no actions needed return [].`;
+
+  try {
+    const resp = await fetch('https://frosty-base-f01e.erikagonzalez103.workers.dev/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:300, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await resp.json();
+    const text = data.content?.[0]?.text || '[]';
+    let actions = [];
+    try { actions = JSON.parse(text.replace(/```json|```/g,'').trim()); } catch(e) { actions = []; }
+
+    if (!actions.length) {
+      actDiv.innerHTML = `<div style="font-size:12px;color:var(--text-muted)">No action items found.</div>`;
+      return;
+    }
+
+    actDiv.innerHTML = `<div style="font-size:11px;font-weight:600;color:var(--text-hint);text-transform:uppercase;margin-bottom:6px">Action items</div>`;
+    actions.forEach(a => {
+      actDiv.innerHTML += `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:1;font-size:12px;color:var(--text)">${esc(a.task)}${a.urgent?'  <span class="badge badge-red">Urgent</span>':''}</div>
+        <button class="action-btn primary" onclick="addTodo('${esc(a.task)}')" style="font-size:11px;padding:4px 10px">+ To-Do</button>
+      </div>`;
+    });
+  } catch(err) {
+    actDiv.innerHTML = `<div style="font-size:12px;color:var(--red)">Could not extract actions.</div>`;
   }
 }
 
