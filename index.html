@@ -275,13 +275,13 @@ body {
 }
 .option-btn:hover { border-color: var(--blue); color: var(--text); }
 .option-btn.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); font-weight: 600; }
-.cal-day { min-height: 100px; padding: 6px; border-radius: 4px; border: 1px solid transparent; font-size: 12px; }
-.cal-day-empty { min-height: 100px; }
-.cal-day-selectable:hover { border-color: var(--blue); background: var(--blue-dim); }
-.cal-today { background: var(--surface2); }
-.cal-day-num { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 3px; }
-.cal-today-num { background: var(--blue); color: #fff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-.cal-event { font-size: 10px; background: var(--blue-dim); color: var(--blue); border-radius: 3px; padding: 2px 4px; margin-bottom: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cal-day { min-height: 120px; padding: 8px; border-radius: 6px; border: 1px solid var(--border); font-size: 12px; background: var(--surface); }
+.cal-day-empty { min-height: 120px; border: 1px solid transparent; }
+.cal-day-selectable:hover { border-color: var(--blue); background: var(--blue-dim); cursor: pointer; }
+.cal-today { background: var(--surface2); border-color: var(--border-strong); }
+.cal-day-num { font-size: 15px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+.cal-today-num { background: var(--blue); color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+.cal-event { font-size: 11px; background: var(--blue-dim); color: var(--blue); border-radius: 4px; padding: 3px 6px; margin-bottom: 3px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
 
 /* ── METRICS GRID ── */
 .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; margin-bottom: 12px; }
@@ -524,10 +524,7 @@ select.field-input { appearance: none; cursor: pointer; }
       <span class="nav-icon">📬</span> Inbox
     </button>
     <button class="nav-item" onclick="switchTab('calendar')">
-      <span class="nav-icon">📅</span> Calendar
-    </button>
-    <button class="nav-item" onclick="switchTab('todos')">
-      <span class="nav-icon">✅</span> To-Do
+      <span class="nav-icon">📅</span> Calendar & To-Do
     </button>
   </nav>
 
@@ -686,8 +683,7 @@ const TABS = {
   'brief': {title:'Brief', sub:'Daily operating brief · Jericho'},
   'weekly5': {title:'Weekly 5', sub:'Your growth focus this week · Jericho'},
   'inbox': {title:'Inbox', sub:'Priority emails · dion@eridionglass.com'},
-  'calendar': {title:'Calendar', sub:'Today & tomorrow · Microsoft'},
-  'todos': {title:'To-Do', sub:'Quick list · Jericho'},
+  'calendar': {title:'Calendar & To-Do', sub:'Month view · Outlook sync'},
   'scoreboard': {title:'Scoreboard', sub:'CEO daily metrics · Eridion Glass'},
   'jobs': {title:'Jobs', sub:'Field status updates · Monday.com'},
   'subs': {title:'Subs', sub:'Sub-contractor coordination'},
@@ -1144,10 +1140,10 @@ function renderCalendarView() {
             <button onclick="calNav(1)" style="background:none;border:none;color:var(--text);cursor:pointer;font-size:20px;padding:0 8px">›</button>
           </div>
           <div style="padding:8px">
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
-              ${DAYS.map(d => `<div style="text-align:center;font-size:10px;font-weight:600;color:var(--text-hint);padding:4px 0">${d}</div>`).join('')}
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">
+              ${DAYS.map(d => `<div style="text-align:center;font-size:12px;font-weight:600;color:var(--text-muted);padding:6px 0">${d}</div>`).join('')}
             </div>
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">${dayCells}</div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">${dayCells}</div>
           </div>
         </div>
       </div>
