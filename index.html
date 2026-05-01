@@ -531,7 +531,7 @@ select.field-input { appearance: none; cursor: pointer; }
   <nav class="nav-section">
     <div class="nav-label">Business</div>
     <button class="nav-item" onclick="switchTab('scoreboard')">
-      <span class="nav-icon">📊</span> Scoreboard
+      <span class="nav-icon">📊</span> Dashboard
     </button>
     <button class="nav-item" onclick="switchTab('jobs')">
       <span class="nav-icon">🔧</span> Jobs
@@ -684,7 +684,7 @@ const TABS = {
   'weekly5': {title:'Weekly 5', sub:'Your growth focus this week · Jericho'},
   'inbox': {title:'Inbox', sub:'Priority emails · dion@eridionglass.com'},
   'calendar': {title:'Calendar & To-Do', sub:'Month view · Outlook sync'},
-  'scoreboard': {title:'Scoreboard', sub:'CEO daily metrics · Eridion Glass'},
+  'scoreboard': {title:'Dashboard', sub:'CEO daily metrics · Eridion Glass'},
   'jobs': {title:'Jobs', sub:'Field status updates · Monday.com'},
   'subs': {title:'Subs', sub:'Sub-contractor coordination'},
   'training': {title:'Training', sub:'Alcatraz build · Self-coached'},
@@ -868,7 +868,7 @@ function renderBriefFallback(isEvening, urgentMsgs, jobAlerts) {
 }
 
 const MORNING_SECTIONS = [
-  { key:'scoreboard_pulse',    icon:'📊', label:'Scoreboard Pulse'      },
+  { key:'scoreboard_pulse',    icon:'📊', label:'Dashboard Pulse'      },
   { key:'todays_todos',        icon:'✅', label:"Today's To-Do's"       },
   { key:'key_business_actions',icon:'🎯', label:'Key Business Actions'  },
   { key:'training_plan',       icon:'🏊', label:'Training Plan'         },
@@ -1016,7 +1016,9 @@ async function renderInbox() {
   document.getElementById('tab-inbox').innerHTML = `<div class="loading"><div class="spinner"></div><div style="font-size:13px">Reading your inbox...</div></div>`;
   try {
     const resp = await fetch('https://frosty-base-f01e.erikagonzalez103.workers.dev/inbox/dion');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
+    if (data.error) throw new Error(data.error);
     inboxEmails = data.emails || [];
     const unreplied = data.unreplied || [];
 
@@ -1053,28 +1055,29 @@ async function renderInbox() {
       emails.forEach((e, i) => {
         const globalIdx = inboxEmails.indexOf(e);
         html += `<div class="card" style="margin-bottom:8px" id="inbox-card-${globalIdx}">
-          <div style="padding:12px 16px;display:flex;align-items:flex-start;gap:12px" onclick="toggleInboxExpand(${globalIdx})" style="cursor:pointer">
-            <div style="flex:1;min-width:0;cursor:pointer" onclick="toggleInboxExpand(${globalIdx})">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <div style="padding:12px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer" onclick="toggleInboxExpand(${globalIdx})">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap">
                 <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(e.from)}</div>
                 <span class="badge ${catColor[e.category]||'badge-gray'}">${catLabel[e.category]||e.category}</span>
                 ${!e.isRead?'<span class="badge badge-blue">Unread</span>':''}
                 ${e.needsReply?'<span class="badge badge-red">Needs reply</span>':''}
               </div>
               <div style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:3px">${esc(e.subject)}</div>
-              <div style="font-size:11px;color:var(--text-hint)">${esc(e.preview.substring(0,100))}${e.preview.length>100?'...':''}</div>
+              <div style="font-size:11px;color:var(--text-hint)">${esc(e.preview.substring(0,120))}${e.preview.length>120?'...':''}</div>
               <div style="font-size:10px;color:var(--text-hint);margin-top:3px">${e.hoursAgo}h ago · ${esc(e.fromEmail)}</div>
             </div>
+            <div style="font-size:18px;color:var(--text-hint);flex-shrink:0" id="inbox-arrow-${globalIdx}">›</div>
           </div>
-          <div id="inbox-expand-${globalIdx}" style="display:none;border-top:1px solid var(--border);padding:12px 16px">
-            <div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:12px;white-space:pre-wrap">${esc(e.body.substring(0,400))}${e.body.length>400?'...':''}</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div id="inbox-expand-${globalIdx}" style="display:none;border-top:1px solid var(--border)">
+            <div style="padding:12px 16px;font-size:12px;color:var(--text);line-height:1.7;background:var(--surface2);white-space:pre-wrap;max-height:300px;overflow-y:auto">${esc(e.body.substring(0,1200))}${e.body.length>1200?'\n\n[... message truncated ...]':''}</div>
+            <div style="padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border)">
               <button class="action-btn primary" onclick="generateInboxReply(${globalIdx})">✉️ Draft Reply</button>
               <button class="action-btn" onclick="extractActions(${globalIdx})">📋 Extract Actions</button>
               <button class="action-btn" onclick="addTodo('Reply to ${esc(e.from)} — ${esc(e.subject.substring(0,35))}')">✅ Add to To-Do</button>
             </div>
-            <div id="inbox-reply-${globalIdx}" style="margin-top:12px;display:none"></div>
-            <div id="inbox-actions-${globalIdx}" style="margin-top:12px;display:none"></div>
+            <div id="inbox-reply-${globalIdx}" style="padding:0 16px;display:none"></div>
+            <div id="inbox-actions-${globalIdx}" style="padding:0 16px 12px;display:none"></div>
           </div>
         </div>`;
       });
@@ -1089,8 +1092,11 @@ async function renderInbox() {
 
 function toggleInboxExpand(idx) {
   const el = document.getElementById('inbox-expand-' + idx);
+  const arrow = document.getElementById('inbox-arrow-' + idx);
   if (!el) return;
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
 }
 
 async function generateInboxReply(idx) {
@@ -1449,7 +1455,7 @@ function renderScoreboard() {
 
   const html = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <div class="section-label" style="margin:0">CEO scoreboard</div>
+      <div class="section-label" style="margin:0">CEO dashboard</div>
       <button class="action-btn" onclick="autoFillScoreboard()" style="font-size:11px">⚡ Auto-fill from Xero</button>
     </div>
     <div id="autofill-status" style="font-size:11px;color:var(--green);margin-bottom:8px;display:none"></div>
